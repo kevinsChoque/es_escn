@@ -493,7 +493,6 @@ $('.assignProgram').on('click',function(){
         alert('es necesario contar con registros de ususario para asignar.');
     }
 });
-var ppp ;
 $('.searchRecords').on('click',function(){
     var fd = new FormData($("#fdProgram")[0]);
     // formData.append('items',JSON.stringify(itemsCcmn));
