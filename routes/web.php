@@ -14,7 +14,10 @@ use App\Http\Controllers\ReportController;
 // });
 Route::get('/',[StartController::class, 'actLogin']);
 // login
+Route::get('login/login',[LoginController::class, 'actLogin']);
 Route::post('login/sigin',[LoginController::class, 'actSigin'])->name('login');
+Route::get('login/logout',[LoginController::class, 'actLogout'])->name('logout');
+
 // cortes
 // Route::get('/',[StartController::class, 'actStart']);
 Route::get('court/start',[CourtController::class, 'actStart'])->name('home');

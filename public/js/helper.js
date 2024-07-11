@@ -1,7 +1,7 @@
 $('.onlyNumbers').on('input', function () {
     this.value = this.value.replace(/[^0-9]/g,'');
 });
-function novDato(dato){return dato!==null && dato!=''?dato:'--';}
+function novDato(dato){return dato!==null && dato!==''?dato:'--';}
 function initDatatable(idTable)
 {
     $('#'+idTable).DataTable( {
@@ -24,7 +24,6 @@ function initDatatable(idTable)
                 "previous": "Anterior"
             }
         },
-
     } );
     $('input[type=search]').parent().css('width','100%');
     $('input[type=search]').css('width','100%');
@@ -51,7 +50,6 @@ function initDatatableDD(idTable)
                 "previous": "Anterior"
             }
         },
-
     } );
     $('input[type=search]').parent().css('width','100%');
     $('input[type=search]').css('width','100%');

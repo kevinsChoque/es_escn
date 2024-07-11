@@ -27,16 +27,17 @@
                             <div class="card-body shadow text-center">
                                 <img src="{{asset('escn/public/bannerLogin.png')}}" class="img-fluid rounded-top"/>
                                 <br>
+                                <br>
                                 <div class="form-floating">
                                     <input type="text" class="form-control onlyNumbers" id="dni" name="dni" placeholder="DNI" maxlength="8">
                                     <label for="dni">DNI</label>
                                 </div>
                                 <br>
-                                <div class="form-floating">
+                                {{-- <div class="form-floating">
                                     <input type="password" class="form-control" id="password" name="password"  placeholder="Contraseña">
                                     <label for="password">Contraseña</label>
-                                </div>
-                                <br>
+                                </div> --}}
+                                {{-- <br> --}}
                                 <div class="d-grid gap-2">
                                     <button class="btn btn-primary sig-in" type="button">Ingresar</button>
                                 </div>

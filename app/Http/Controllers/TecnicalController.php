@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\TTecnical;
 use App\Models\TAssign;
+use App\Models\TEnding;
 use App\Models\TCourt;
 use App\Models\TActivation;
 use App\Models\TEvidence;
@@ -36,61 +37,162 @@ class TecnicalController extends Controller
     }
     public function actAssign(Request $r)
     {
-        // dd($r->all());
-        $flat = $r->idTec.'_'.strtolower(Session::get('nameMonth')).'_'.Carbon::now()->year;
-        $r->merge(['month' => strtolower(Session::get('nameMonth'))]);
-        $r->merge(['flat' => $flat]);
-        $r->merge(['filter' => Session::get('lastFilter')]);
-        $ass=TAssign::create($r->all());
-        if($ass)
-        {
-            $conSql = $this->connectionSql();
-            if($conSql)
+        try{
+            // dd($r->all(),'cascsa', TEnding::where('state',1)->orderBy('idEnd', 'desc')->first());
+            $listCutsOld = [];
+            $data = Session::get('listCuts');
+            for ($i = 0; $i < count($data); $i++) {
+                $listCutsOld[] = [
+                    "numberInscription" => $data[$i]['numberInscription'],
+                    "monthDebt" => $data[$i]['monthDebt'],
+                    "amount" => $data[$i]['amount']
+                ];
+            }
+            // $sizeInBytes = strlen($json_data);
+            // $sizeInMegabytes = $sizeInBytes / (1024 * 1024);
+            // dd(gettype($json_data),$sizeInMegabytes,$json_data);
+            $flat = $r->idTec.'_'.strtolower(Session::get('nameMonth')).'_'.Carbon::now()->year;
+            $r->merge(['idEnd' => TEnding::where('state',1)->orderBy('idEnd', 'desc')->first()->idEnd]);
+            $r->merge(['month' => strtolower(Session::get('nameMonth'))]);
+            $r->merge(['flat' => $flat]);
+            $r->merge(['filter' => Session::get('lastFilter')]);
+            $r->merge(['listCutsOld' => json_encode($listCutsOld, JSON_PRETTY_PRINT)]);
+            $ass=TAssign::create($r->all());
+            if($ass)
             {
-                $script = "UPDATE INSCRIPC
-                    SET CourtEscn = '".$flat."'
-                    FROM INSCRIPC i
-                    INNER JOIN CONEXION c ON i.InscriNro = c.InscriNro
-                    INNER JOIN TOTFAC t ON t.InscriNrx = c.InscriNro ".Session::get('lastFilter');
-                $stmt = sqlsrv_query($conSql, $script);
-                if($stmt)
-                    return response()->json(['state' => true, 'message' => 'Se realizó la asignación correctamente']);
+                $conSql = $this->connectionSql();
+                if($conSql)
+                {
+                    $script = "UPDATE INSCRIPC
+                        SET CourtEscn = '".$flat."', CtaMesActOldEscn=CtaMesAct
+                        FROM INSCRIPC i
+                        INNER JOIN CONEXION c ON i.InscriNro = c.InscriNro
+                        INNER JOIN TOTFAC t ON t.InscriNrx = c.InscriNro ".Session::get('lastFilter');
+                    $stmt = sqlsrv_query($conSql, $script);
+                    if($stmt)
+                        return response()->json(['state' => true, 'message' => 'Se realizó la asignación correctamente']);
+                    else
+                    {
+                        throw new \Exception('Error al momento de actualizar CORTES: ' . print_r(sqlsrv_errors(), true));
+                        // return response()->json(['state' => false, 'message' => 'Error al momento de actualizar CORTES: ' . print_r(sqlsrv_errors(), true)]);
+                    }
+                }
                 else
-                    return response()->json(['state' => false, 'message' => 'Error al momento de actualizar CORTES: ' . print_r(sqlsrv_errors(), true)]);
+                {
+                    // return response()->json(['state' => false, 'message' => 'Ocurrio un error en la conexion al sistema.']);
+                    throw new \Exception('Ocurrió un error en la conexión al sistema.');
+                }
             }
             else
             {
-                return response()->json(['state' => false, 'message' => 'Ocurrio un error en la conexion al sistema.']);
+                throw new \Exception('No fue posible crear una asignación.');
+                // return response()->json(['state' => false, 'message' => 'No fue posible crear una asignacion.']);
             }
-
+        }
+        catch (\Exception $e) {
+            return response()->json(['state' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    public function verifyListCutsOld($inscription)
+    {
+        $data = json_decode(Session::get('assign')->listCutsOld, true);
+        if (json_last_error() !== JSON_ERROR_NONE)
+        {
+            dd('Error al decodificar JSON');
+            // return ['state' => false, 'checked' => false, 'message' => 'Error al decodificar JSON'];
+        }
+        $found = null;
+        foreach ($data as $element)
+        {
+            if ($element['numberInscription'] == $inscription)
+            {
+                $found = $element;
+                break;
+            }
+        }
+        if ($found)
+        {
+            // dd("Elemento encontrado: ",$found);
+            return ['state' => true, 'reg' => $found];
         }
         else
-            return response()->json(['state' => false, 'message' => 'No fue posible crear una asignacion.']);
+            dd("Elemento no encontrado para el número de inscripción $numeroInscripcionABuscar.\n");
     }
     public function actCourtUser(Request $r)
     {
         // dd($r->all());
+        $reg = $this->verifyListCutsOld($r->inscription);
+        // dd($reg['reg']['monthDebt']);
+        // dd('csac');
         $conSql = $this->connectionSql();
         if($conSql)
         {
             $script = "select * from TOTFAC where InscriNrx='".$r->inscription."' and FacFecFac='".$this->month[ucfirst(Session::get('assign')->month)]."' ";
             // dd($script);
-
+            $script = "select CtaMesAct,CourtEscn,* from INSCRIPC where InscriNro='".$r->inscription."'";
 
             $stmtVerify = sqlsrv_query($conSql, $script);
             $rowVerify = sqlsrv_fetch_array( $stmtVerify, SQLSRV_FETCH_ASSOC);
+            if($r->state=='true')
+            {
+                if($reg['reg']['monthDebt'] == 3 && $rowVerify['CtaMesAct'] == 2)
+                {
+
+                }
+                else
+                {
+                    if($rowVerify['CtaMesAct'] >= 2)
+                    {
+
+                    }
+                    else
+                    {
+                        if($rowVerify['CtaMesAct'] != $reg['reg']['monthDebt'])
+                            return response()->json(['state' => false, 'according' => 'paid', 'paid' => false, 'checked' => false, 'message' => 'No es posible cancelar corte.-']);
+                    }
+
+                }
+            }
+            else
+            {
+                // if($rowVerify['CtaMesAct']<=3)
+                if($reg['reg']['monthDebt']<=3)
+                {
+                    // if($reg['reg']['monthDebt'] == 3 && $rowVerify['CtaMesAct'] == 2)
+                    // {
+                    //     return response()->json(['state' => false, 'according' => 'paid', 'paid' => true, 'checked' => false, 'message' => 'No es posible realizar el corte posibles motivos (pago, convenio, reclamo).']);
+                    // }
+                    if($reg['reg']['monthDebt'] == 3 && $rowVerify['CtaMesAct'] == 2)
+                    {
+                        // return response()->json(['state' => false, 'according' => 'paid', 'paid' => true, 'checked' => false, 'message' => 'No es posible realizar el corte posibles motivos (pago, convenio, reclamo).']);
+                    }
+                    else
+                    {
+                        if($rowVerify['CtaMesAct'] != $reg['reg']['monthDebt'])
+                            return response()->json(['state' => false, 'according' => 'paid', 'paid' => true, 'checked' => false, 'message' => 'No es posible realizar el corte posibles motivos (pago, convenio, reclamo).']);
+                    }
+
+                }
+                else
+                {
+                    if($rowVerify['CtaMesAct'] == 0)
+                        return response()->json(['state' => false, 'according' => 'paid', 'paid' => true, 'checked' => false, 'message' => 'No es posible realizar el corte posibles motivos (pago, convenio).']);
+                }
+            }
+
             // dd($row['FacEstado']);
-            if ($stmtVerify === false)
-                return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error al momento de verificar pago.']);// die(print_r(sqlsrv_errors(), true)); // Manejar errores en la consulta
-            // if (!($row = sqlsrv_fetch_array($stmtVerify, SQLSRV_FETCH_ASSOC)))
-            //     return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, no se encuentra pago asociado.']);
-            if ($r->state=='true' && $rowVerify['FacEstado']=='1')
-                return response()->json(['state' => false, 'according' => 'paid', 'paid' => false, 'checked' => false, 'message' => 'No es posible cancelar corte, recibo pagado despues de corte.']);
-            if ($rowVerify['FacEstado']=='1')
-                return response()->json(['state' => false, 'according' => 'paid', 'paid' => true, 'checked' => false, 'message' => 'No es posible realizar el corte, RECIBO PAGADO.']);
-            $stateTotFac = $rowVerify['FacEstado'];
-            $fcTotFac = $rowVerify['FConsumo'];//only verify
+            // ----------------
+            // if ($stmtVerify === false)
+            //     return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error al momento de verificar pago.']);// die(print_r(sqlsrv_errors(), true)); // Manejar errores en la consulta
+            // if ($r->state=='true' && $rowVerify['FacEstado']=='1')
+            //     return response()->json(['state' => false, 'according' => 'paid', 'paid' => false, 'checked' => false, 'message' => 'No es posible cancelar corte, recibo pagado despues de corte.']);
+            // if ($rowVerify['FacEstado']=='1')
+            //     return response()->json(['state' => false, 'according' => 'paid', 'paid' => true, 'checked' => false, 'message' => 'No es posible realizar el corte, RECIBO PAGADO.']);
+            // ----------------
+            // $stateTotFac = $rowVerify['FacEstado'];
+            // $fcTotFac = $rowVerify['FConsumo'];//only verify
             // dd($fcTotFac,$stateTotFac, $stateTotFac=='1'?true:false);
+            // dd($rowVerify['CtaMesAct'],$reg['reg']['monthDebt']);
             if($r->state=='false')
                 $script = "UPDATE INSCRIPC
                 SET StateUserEscn = '4'
@@ -131,6 +233,56 @@ class TecnicalController extends Controller
                         ]);
                         if($court)
                         {
+                            $script = "select CodTipSer,* from CONEXION where InscriNro='".$r->inscription."'";
+                            $stmt = sqlsrv_query($conSql, $script);
+                            $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC);
+                            $pm = $row['PreMzn'];
+                            $pl = $row['PreLote'];
+                            if($row['CodTipSer']=='1')
+                            {
+                                $scriptCoagua = "update COAGUA set ConEstado=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                                $scriptCodesa = "update CODESA set ConDEstad=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                                $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                                $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                                if($stmtCoagua && $stmtCodesa)
+                                {
+                                    return response()->json(['state' => true,
+                                        'checked' => true,
+                                        'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
+                                    ]);
+                                }
+                            }
+                            if($row['CodTipSer']=='2')
+                            {
+                                $scriptCoagua = "update COAGUA set ConEstado=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                                $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                                if($stmtCoagua)
+                                {
+                                    return response()->json(['state' => true,
+                                        'checked' => true,
+                                        'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
+                                    ]);
+                                }
+                            }
+                            if($row['CodTipSer']=='3')
+                            {
+                                $scriptCodesa = "update CODESA set ConDEstad=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                                $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                                if($stmtCodesa)
+                                {
+                                    return response()->json(['state' => true,
+                                        'checked' => true,
+                                        'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
+                                    ]);
+                                }
+                            }
+                            // si coptiser=1
+                            // update COAGUA set ConEstado=2 where PreMzn='' and PreLote=''
+                            // update CODESA set ConDEstad=2 where PreMzn='' and PreLote=''
+                            // si codtipser=2
+                            // update COAGUA set ConEstado=2 where PreMzn='' and PreLote=''
+                            // si codtipser=3
+                            // update CODESA set ConEstado=2 where PreMzn='' and PreLote=''
                             return response()->json(['state' => true,
                                 'checked' => $r->state=='true'?false:true,
                                 'message' => $r->state=='true'?'Se cancelo el corte: con numero de inscripcion '.$r->inscription.'.':'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'

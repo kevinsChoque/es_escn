@@ -92,19 +92,23 @@ class CourtController extends Controller
     {
         // dd($r->all(),$this->month[$r->month], gettype($r->services));
         // dd($this->formatCategories($r->categories));
+        // dd($r->all());
         try {
             // $serverName = 'informatica2-pc\sicem_bd';
-            $serverName = 'KEVIN-O3VME56';
             // $connectionInfo = array(
-            //     "Database" => "sicem_ab_local",
+            //     "Database" => "SICEM_AB",
             //     "UID" => "comercial",
             //     "PWD" => "1",
             //     "CharacterSet" => "UTF-8"
             // );
-            $connectionInfo = array("Database"=>"sicem_ab_local","CharacterSet"=>"UTF-8");
-            $conn_sis = sqlsrv_connect($serverName, $connectionInfo);
 
-            if ($conn_sis)
+            // $serverName = 'KEVIN-O3VME56';
+            // $connectionInfo = array("Database"=>"sicem_ab_local","CharacterSet"=>"UTF-8");
+            // $conn_sis = sqlsrv_connect($serverName, $connectionInfo);
+
+            // if ($conn_sis)ç
+            $conSql = $this->connectionSql();
+            if ($conSql)
             {
                 $conRoutes = " and c.PreMzn in (".$r->routes.") ";
                 $conMonth = " and t.FacFecFac='".$this->month[$r->month]."' ";
@@ -122,17 +126,19 @@ class CourtController extends Controller
                     left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
                     left outer join rzcalle rz ON rz.calcod = c.precalle
                     where t.InscriNrx is not null and i.CourtEscn is null ".$conRoutes.$conMonth.$conMonthDebt.$conStateReceipt.$conCategory.$conServices;
-                    // dd($script);
+// dd($script);
+$ppp=$script;
                 $lastFilter = " where t.InscriNrx is not null ".$conRoutes.$conMonth.$conMonthDebt.$conStateReceipt.$conServices;
                 session(['lastFilter' => $lastFilter]);
                 session(['nameMonth' => $r->nameMonth]);
 
 
-                $stmt = sqlsrv_query($conn_sis, $script);
+                $stmt = sqlsrv_query($conSql, $script);
                 $arreglo = array();
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) )
                 {   $arreglo[] = $row;}
-                return response()->json(['estado' => true,"data"=>$arreglo]);
+                session(['listCuts' => $arreglo]);
+                return response()->json(['estado' => true,"data"=>$arreglo, "ppp"=>$ppp]);
             }
             else
             {
@@ -144,6 +150,7 @@ class CourtController extends Controller
     }
     public function actCourtAssign()
     {
+        // dd(gettype(Session::get('assign')->listCutsOld));
         $assign = TAssign::where('idTec',Session::get('tecnical')->idTec)->orderby('idTec','desc')->first();
         // dd(Session::get('tecnical')->idTec,$assign);
         if($assign != null)
@@ -151,12 +158,13 @@ class CourtController extends Controller
             $conSql = $this->connectionSql();
             if($conSql)
             {
-                $script = "select i.StateUserEscn as courtState,t.FacEstado as paid, c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
+                $script = "select i.CtaMesActOldEscn as CtaMesActOld,i.StateUserEscn as courtState,t.FacEstado as paid, c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
                     rz.CalTip + ' ' + rz.CalDes as streetDescription,i.Tarifx as rate, T.FMedidor as meter,i.CtaMesAct as monthDebt, i.CtaFacSal as amount, c.CodTipSer as serviceEnterprise, t.FConsumo as consumption
                         from TOTFAC t INNER JOIN CONEXION c ON t.InscriNrx=c.InscriNro
                         left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
                         left outer join rzcalle rz ON rz.calcod = c.precalle
                         where i.CourtEscn = '".$assign->flat."' and t.FacFecFac='".$this->month[ucfirst($assign->month)]."' order by c.PreMzn, c.PreLote";
+
                         // dd($script);
                 $stmt = sqlsrv_query($conSql, $script);
                 $arrayRecords = array();

@@ -13,11 +13,12 @@
               @endif
             </ul>
           <div class="d-flex">
-              @if(Session::has('user'))
-              <button class="btn btn-outline-success ms-2 logout">Cerrar sesion</button>
-              @else
-              <button class="btn btn-outline-success mLogin">Ingresar</button>
-              @endif
+            <button class="btn btn-outline-success ms-2 logout">Cerrar sesion</button>
+            {{-- @if(Session::has('user'))
+            <button class="btn btn-outline-success ms-2 logout">Cerrar sesion</button>
+            @else
+            <button class="btn btn-outline-success mLogin">Ingresar</button>
+            @endif --}}
           </div>
       </div>
     </div>
@@ -45,5 +46,21 @@ function sideBarActive()
       $('.nb3>a').addClass('active');
   }
 }
-
+$('.logout').on('click',function(){
+    Swal.fire({
+        title: "Finalizar Sesion",
+        text: "¿Esta seguro de cerrar sesion?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Si, cerrar sesion!",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('.overlayPagina').css("display","flex");
+            window.location.href = "{{route('logout')}}";
+        }
+    });
+});
 </script>

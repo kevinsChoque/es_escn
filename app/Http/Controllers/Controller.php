@@ -13,6 +13,13 @@ class Controller extends BaseController
     {
         $serverName = 'KEVIN-O3VME56';
         $connectionInfo = array("Database"=>"sicem_ab_local","CharacterSet"=>"UTF-8");
+        // $serverName = 'informatica2-pc\sicem_bd';
+        // $connectionInfo = array(
+        //     "Database" => "SICEM_AB",
+        //     "UID" => "comercial",
+        //     "PWD" => "1",
+        //     "CharacterSet" => "UTF-8"
+        // );
         return sqlsrv_connect($serverName, $connectionInfo);
     }
 }

@@ -262,8 +262,8 @@ function courtUser(ele)
                 }
             });
         }
-        else
-            $(ele).prop('checked', false);
+        // else
+            // $(ele).prop('checked', false);
     });
 }
 function activateUser(ele)
@@ -294,7 +294,7 @@ function activateUser(ele)
                     {
                         if(r.checked)
                         {
-                            $(ele).parent().parent().parent().css('background','rgba(119, 163, 69, 0.5)');
+                            $(ele).parent().parent().parent().css('background','rgba(119, 163, 69, 0.5)');//caña verde
                             $(ele).parent().find('label').html('Activado');
                             $(ele).prop('checked', true);
 
@@ -435,9 +435,10 @@ function fillRecords()
                 for (var i = 0; i < r.data.length; i++)
                 {
                     countRecords++;
+
                     if(r.data[i].courtState=='4')
                     {
-                        console.log('cortar a este '+r.data[i].numberInscription);
+                        // console.log('cortar a este '+r.data[i].numberInscription);
                         stillCut = 'rgba(255, 0, 0, 0.5)';
                         accordingStateCourt = '<label class="fw-bold">cortado</label>' +
                         '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
@@ -453,33 +454,146 @@ function fillRecords()
                         accordingStateCourt = '<label class="fw-bold">sin accion</label>' +
                         '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
                     }
-                    if(r.data[i].paid=='1')
-                    {
-                        evidence = '';
-                        if(r.data[i].courtState=='1')
-                        {
-                            stillCut = "rgba(119, 163, 69, 0.5);";
-                            accordingStateCourt = '';
-                            accordingStatePaid = '<label class="fw-bold">Activado</label>' +
-                            '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+                    // if(r.data[i].paid=='1')
+                    // {
+                    //     evidence = '';
+                    //     if(r.data[i].courtState=='1')
+                    //     {
+                    //         stillCut = "rgba(119, 163, 69, 0.5);";
+                    //         accordingStateCourt = '';
+                    //         accordingStatePaid = '<label class="fw-bold">Activado</label>' +
+                    //         '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
 
-                            evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
-                                '<i class="fa fa-image"></i></button>';
+                    //         evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
+                    //             '<i class="fa fa-image"></i></button>';
+                    //     }
+                    //     else
+                    //     {
+                    //         stillCut = "rgba(0, 0, 255, 0.5);";
+                    //         accordingStateCourt = '';
+                    //         accordingStatePaid = '<label class="fw-bold">Activar</label>' +
+                    //         '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+                    //     }
+                    // }
+
+                    // console.log(r.data[i].CtaMesActOld)
+                    // console.log(r.data[i].monthDebt)
+                    // console.log(r.data[i].CtaMesActOld!=r.data[i].monthDebt)
+                    // break;
+                    if(r.data[i].CtaMesActOld!=r.data[i].monthDebt && r.data[i].courtState=='4')
+                    {
+                        if(r.data[i].CtaMesActOld == 3 && r.data[i].monthDebt == 2)
+                        {
+                            stillCut = 'rgba(255, 0, 0, 0.5)';
+                            accordingStateCourt = '<label class="fw-bold">cortado</label>' +
+                            '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+                            accordingStatePaid = '';
+
+                            evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+r.data[i].numberInscription+'">'+
+                            '<i class="fa fa-image"></i></button>';
                         }
                         else
                         {
-                            stillCut = "rgba(0, 0, 255, 0.5);";
-                            accordingStateCourt = '';
-                            accordingStatePaid = '<label class="fw-bold">Activar</label>' +
-                            '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+
+
+                            if(r.data[i].CtaMesActOld<=3)
+                            {
+                                evidence = '';
+                                if(r.data[i].courtState=='1')
+                                {
+                                    stillCut = "rgba(119, 163, 69, 0.5);";
+                                    accordingStateCourt = '';
+                                    accordingStatePaid = '<label class="fw-bold">Activado</label>' +
+                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+
+                                    evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
+                                        '<i class="fa fa-image"></i></button>';
+                                }
+                                else
+                                {
+                                    stillCut = "rgba(0, 0, 255, 0.5);";
+                                    accordingStateCourt = '';
+                                    accordingStatePaid = '<label class="fw-bold">Activar</label>' +
+                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+                                }
+                            }
+                            else
+                            {
+                                // console.log('llego aki '+r.data[i].numberInscription)
+                                // console.log(r.data[i].monthDebt)
+                                if(r.data[i].monthDebt == 0 || r.data[i].monthDebt == 1)
+                                {
+                                    evidence = '';
+                                    if(r.data[i].courtState=='1')
+                                    {
+                                        stillCut = "rgba(119, 163, 69, 0.5);";
+                                        accordingStateCourt = '';
+                                        accordingStatePaid = '<label class="fw-bold">Activado</label>' +
+                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+
+                                        evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
+                                            '<i class="fa fa-image"></i></button>';
+                                    }
+                                    else
+                                    {
+                                        stillCut = "rgba(0, 0, 255, 0.5);";
+                                        accordingStateCourt = '';
+                                        accordingStatePaid = '<label class="fw-bold">Activar</label>' +
+                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                    // if(r.data[i].courtState === null && r.data[i].courtState=='1')
+                    // {
+                    //     stillCut = "rgba(0, 255, 0, 0.5);";
+                    //     accordingStateCourt = '';
+                    //     accordingStatePaid = '';
+                    // }
+
+
+                    // if(r.data[i].numberInscription=='00139153')
+                    // {
+                    //     console.log(r.data[i].CtaMesActOld)
+                    //     console.log(r.data[i].monthDebt)
+                    //     console.log(r.data[i].courtState)
+                    //     console.log(r.data[i].CtaMesActOld!=r.data[i].monthDebt)
+                    //     console.log(r.data[i].courtState === null)
+                    //     break;
+                    // }
+
+                    if(r.data[i].CtaMesActOld!=r.data[i].monthDebt && r.data[i].courtState === null)
+                    {
+
+                        if(r.data[i].CtaMesActOld<=3)
+                        {
+                            if(r.data[i].CtaMesActOld == 3 && r.data[i].monthDebt == 2)
+                            {
+                                stillCut = 'none';
+                                accordingStateCourt = '<label class="fw-bold">sin accion</label>' +
+                                '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+                            }
+                            else
+                            {
+                                stillCut = "rgba(0, 255, 0, 0.5);";
+                                accordingStateCourt = '';
+                                accordingStatePaid = '';
+                                console.log('State === nul --- ActOld<=3---'+r.data[i].numberInscription)
+                            }
+                        }
+                        else
+                        {
+                            if(r.data[i].monthDebt == 0)
+                            {
+                                stillCut = "rgba(0, 255, 0, 0.5);";
+                                accordingStateCourt = '';
+                                accordingStatePaid = '';
+                            }
                         }
                     }
-                    if(r.data[i].courtState === null && r.data[i].paid=='1')
-                    {
-                        stillCut = "rgba(0, 255, 0, 0.5);";
-                        accordingStateCourt = '';
-                        accordingStatePaid = '';
-                    }
+
                     htmlCourt += '<tr style="background: '+stillCut+';">' +
                         '<td class="align-middle text-center">' + countRecords + '</td>' +
                         '<td class="align-middle text-center containerSwitchCourt">' +

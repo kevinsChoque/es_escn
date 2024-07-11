@@ -14,9 +14,11 @@ class TAssign extends Model
 
     protected $fillable = [
         'idAss',
+        'idEnd',
         'idTec',
         'month',
         'flat',
-        'filter'
+        'filter',
+        'listCutsOld'
     ];
 }

@@ -109,12 +109,18 @@
                                 <span class="input-group-text" id="basic-addon1"><i class="fa fa-edit"></i></span>
                                 <select name="month" id="month" class="form-control">
                                     <option disabled>Seleccione mes</option>
-                                    <option value="Enero">Enero</option>
-                                    <option value="Febrero">Febrero</option>
-                                    <option value="Marzo" selected>Marzo</option>
-                                    <option value="Abril">Abril</option>
-                                    <option value="Mayo">Mayo</option>
-                                    <option value="Junio">Junio</option>
+                                    <option value="Enero" {{Session::get('lastMonth') == 'enero' ? 'selected' : '' }} >Enero</option>
+                                    <option value="Febrero" {{Session::get('lastMonth') == 'febrero' ? 'selected' : '' }}>Febrero</option>
+                                    <option value="Marzo" {{Session::get('lastMonth') == 'marzo' ? 'selected' : '' }}>Marzo</option>
+                                    <option value="Abril" {{Session::get('lastMonth') == 'abril' ? 'selected' : '' }}>Abril</option>
+                                    <option value="Mayo" {{Session::get('lastMonth') == 'mayo' ? 'selected' : '' }}>Mayo</option>
+                                    <option value="Junio" {{Session::get('lastMonth') == 'junio' ? 'selected' : '' }}>Junio</option>
+                                    <option value="Julio" {{Session::get('lastMonth') == 'julio' ? 'selected' : '' }}>Julio</option>
+                                    <option value="Agosto" {{Session::get('lastMonth') == 'agosto' ? 'selected' : '' }}>Agosto</option>
+                                    <option value="Setiembre" {{Session::get('lastMonth') == 'setiembre' ? 'selected' : '' }}>Setiembre</option>
+                                    <option value="Octubre" {{Session::get('lastMonth') == 'octubre' ? 'selected' : '' }}>Octubre</option>
+                                    <option value="Noviembre" {{Session::get('lastMonth') == 'noviembre' ? 'selected' : '' }}>Noviembre</option>
+                                    <option value="Diciembre" {{Session::get('lastMonth') == 'diciembre' ? 'selected' : '' }}>Diciembre</option>
                                 </select>
                             </div>
                         </div>
@@ -164,8 +170,8 @@
                             <div class="input-group mb-3">
                                 <select name="services" id="services" class="form-control" multiple>
                                     <option disabled>Seleccione opcion</option>
-                                    <option value="all">Todos</option>
-                                    <option value="1" selected>Agua y desague</option>
+                                    <option value="all" selected>Todos</option>
+                                    <option value="1">Agua y desague</option>
                                     <option value="2">Agua</option>
                                     <option value="3">Desague</option>
                                 </select>
@@ -186,6 +192,7 @@
                     <label for="tecnical" class="form-label m-0">Tecnicos:</label>
                     <div class="input-group mb-3">
                         <select name="tecnical" id="tecnical" class="form-control" disabled>
+                            {{-- <option value="0" disabled>Seleccione tecnico para el programa</option> --}}
                         </select>
                     </div>
                 </div>
@@ -464,8 +471,9 @@ $('.changeSearchRecords').on('click',function(){
     $('.assignProgram').attr('disabled',true)
 });
 $('.assignProgram').on('click',function(){
-    if(amountRecordsFilter!=0)
+    if(amountRecordsFilter!=0 && $('#tecnical').val()!==null)
     {
+        $('.overlayPage').css("display","flex");
         jQuery.ajax({
             url: "{{ route('assignTecnical') }}",
             method: 'POST',
@@ -476,21 +484,31 @@ $('.assignProgram').on('click',function(){
                 console.log(r)
                 if(r.state)
                 {
-                    alert('Se asigno correctamente el tecnico.');
+                    // alert('Se asigno correctamente el tecnico.');
+                    Swal.fire({
+                        title: r.message,
+                        text: r.state?"La informacion fue registrada":'',
+                        icon: r.state? "success" : "error",
+                    });
+                    $('#tecnical').find('option[value="' + $('#tecnical').val() + '"]').remove();
+                    $('#tecnical').trigger('change.select2');
+                    $('#tecnical').val('0').trigger('change');
                 }
                 else
                 {
                     alert('Algo salio mal, porfavor contactese con el Administrador.');
                 }
+                $('.overlayPage').css("display","none");
             },
             error: function (xhr, status, error) {
                 console.log("Algo salio mal, porfavor contactese con el Administrador.");
+                $('.overlayPage').css("display","none");
             }
         });
     }
     else
     {
-        alert('es necesario contar con registros de ususario para asignar.');
+        alert('Es necesario contar con registros de ususario para asignar, como tambien asignar tecnico');
     }
 });
 $('.searchRecords').on('click',function(){
@@ -515,6 +533,7 @@ $('.searchRecords').on('click',function(){
         contentType: false,
         headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
         success: function (r) {
+            console.log(r.ppp)
             console.log(r);
             ppp=r;
             buildTable();
@@ -614,8 +633,11 @@ function fillRecordsTecnical()
         url: "{{ url('tecnical/list') }}",
         method: 'get',
         success: function (r) {
+
+            $('#tecnical').append("<option value='0' disabled selected>Seleccione tecnico para el programa</option>");
             $.each(r.data,function(indice,fila){
-                $('#tecnical').append("<option value='"+fila.idTec+"'>"+fila.dni+' - '+fila.name+"</option>");
+                if(fila.type===null)
+                    $('#tecnical').append("<option value='"+fila.idTec+"'>"+fila.dni+' - '+fila.name+"</option>");
             });
             $('#tecnical').select2();
         },
