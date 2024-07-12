@@ -17,6 +17,8 @@ class TCourt extends Model
         'idAss',
         'cargoNro',
         'inscription',
-        'dateCourt'
+        'dateCourt',
+        'coaguaState',
+        'codesaState',
     ];
 }

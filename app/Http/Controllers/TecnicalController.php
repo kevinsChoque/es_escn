@@ -225,73 +225,100 @@ class TecnicalController extends Controller
                     // dd($script);
                     if($stmt)
                     {
-                        $court=TCourt::create([
-                            'idAss' => Session::get('assign')->idAss,
-                            'cargoNro' => $id,
-                            'inscription' => $r->inscription,
-                            'dateCourt' => Carbon::now()->format('Y-m-d H:i:s'),
-                        ]);
-                        if($court)
+                        $script = "select CodTipSer,* from CONEXION where InscriNro='".$r->inscription."'";
+                        $stmt = sqlsrv_query($conSql, $script);
+                        $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC);
+                        $pm = $row['PreMzn'];
+                        $pl = $row['PreLote'];
+                        if($row['CodTipSer']=='1')
                         {
-                            $script = "select CodTipSer,* from CONEXION where InscriNro='".$r->inscription."'";
-                            $stmt = sqlsrv_query($conSql, $script);
-                            $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC);
-                            $pm = $row['PreMzn'];
-                            $pl = $row['PreLote'];
-                            if($row['CodTipSer']=='1')
+                            $scriptCoagua = "select * from COAGUA where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $scriptCodesa = "select * from CODESA where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                            $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                            $rowCoagua = sqlsrv_fetch_array( $stmtCoagua, SQLSRV_FETCH_ASSOC);
+                            $rowCodesa = sqlsrv_fetch_array( $stmtCodesa, SQLSRV_FETCH_ASSOC);
+                            $coaguaState = $rowCoagua['ConEstado'];
+                            $codesaState = $rowCodesa['ConDEstad'];
+
+                            $scriptCoagua = "update COAGUA set ConEstado=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $scriptCodesa = "update CODESA set ConDEstad=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                            $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                            if($stmtCoagua && $stmtCodesa)
                             {
-                                $scriptCoagua = "update COAGUA set ConEstado=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
-                                $scriptCodesa = "update CODESA set ConDEstad=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
-                                $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
-                                $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
-                                if($stmtCoagua && $stmtCodesa)
-                                {
-                                    return response()->json(['state' => true,
-                                        'checked' => true,
-                                        'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
-                                    ]);
-                                }
+                                $court=TCourt::create([
+                                    'idAss' => Session::get('assign')->idAss,
+                                    'cargoNro' => $id,
+                                    'inscription' => $r->inscription,
+                                    'dateCourt' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'coaguaState' => $coaguaState,
+                                    'codesaState' => $codesaState,
+                                ]);
+                                if(!$court)
+                                    return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador..']);
+                                return response()->json(['state' => true,
+                                    'checked' => true,
+                                    'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
+                                ]);
                             }
-                            if($row['CodTipSer']=='2')
-                            {
-                                $scriptCoagua = "update COAGUA set ConEstado=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
-                                $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
-                                if($stmtCoagua)
-                                {
-                                    return response()->json(['state' => true,
-                                        'checked' => true,
-                                        'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
-                                    ]);
-                                }
-                            }
-                            if($row['CodTipSer']=='3')
-                            {
-                                $scriptCodesa = "update CODESA set ConDEstad=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
-                                $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
-                                if($stmtCodesa)
-                                {
-                                    return response()->json(['state' => true,
-                                        'checked' => true,
-                                        'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
-                                    ]);
-                                }
-                            }
-                            // si coptiser=1
-                            // update COAGUA set ConEstado=2 where PreMzn='' and PreLote=''
-                            // update CODESA set ConDEstad=2 where PreMzn='' and PreLote=''
-                            // si codtipser=2
-                            // update COAGUA set ConEstado=2 where PreMzn='' and PreLote=''
-                            // si codtipser=3
-                            // update CODESA set ConEstado=2 where PreMzn='' and PreLote=''
-                            return response()->json(['state' => true,
-                                'checked' => $r->state=='true'?false:true,
-                                'message' => $r->state=='true'?'Se cancelo el corte: con numero de inscripcion '.$r->inscription.'.':'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
-                            ]);
+                            return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
                         }
-                        else
+                        if($row['CodTipSer']=='2')
                         {
-                            return response()->json(['state' => false, 'checked' => false, 'message' => 'Se guardo el registro del CARGO, pero mop se registro el cortre en la BD de apoyo.']);
+                            $scriptCoagua = "select * from COAGUA where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                            $rowCoagua = sqlsrv_fetch_array( $stmtCoagua, SQLSRV_FETCH_ASSOC);
+                            $coaguaState = $rowCoagua['ConEstado'];
+
+                            $scriptCoagua = "update COAGUA set ConEstado=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                            if($stmtCoagua)
+                            {
+                                $court=TCourt::create([
+                                    'idAss' => Session::get('assign')->idAss,
+                                    'cargoNro' => $id,
+                                    'inscription' => $r->inscription,
+                                    'dateCourt' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'coaguaState' => $coaguaState,
+                                ]);
+                                if(!$court)
+                                    return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador..']);
+                                return response()->json(['state' => true,
+                                    'checked' => true,
+                                    'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
+                                ]);
+                            }
+                            return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador..']);
                         }
+                        if($row['CodTipSer']=='3')
+                        {
+                            $scriptCodesa = "select * from CODESA where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                            $rowCodesa = sqlsrv_fetch_array( $stmtCodesa, SQLSRV_FETCH_ASSOC);
+                            $codesaState = $rowCodesa['ConDEstad'];
+
+                            $scriptCodesa = "update CODESA set ConDEstad=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                            if($stmtCodesa)
+                            {
+                                $court=TCourt::create([
+                                    'idAss' => Session::get('assign')->idAss,
+                                    'cargoNro' => $id,
+                                    'inscription' => $r->inscription,
+                                    'dateCourt' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'codesaState' => $codesaState,
+                                ]);
+                                if(!$court)
+                                    return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador..']);
+                                return response()->json(['state' => true,
+                                    'checked' => true,
+                                    'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
+                                ]);
+                            }
+                            return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador..']);
+                        }
+                        return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
                     }
                     else
                         return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error interno al crear CARGO.']);
@@ -306,6 +333,34 @@ class TecnicalController extends Controller
                         $stmt = sqlsrv_query($conSql, $script);
                         if($stmt)
                         {
+                            $script = "select CodTipSer,* from CONEXION where InscriNro='".$r->inscription."'";
+                            $stmt = sqlsrv_query($conSql, $script);
+                            $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC);
+                            $pm = $row['PreMzn'];
+                            $pl = $row['PreLote'];
+                            if($row['CodTipSer']=='1')
+                            {
+                                $scriptCoagua = "update COAGUA set ConEstado=".$court->coaguaState." where PreMzn='".$pm."' and PreLote='".$pl."'";
+                                $scriptCodesa = "update CODESA set ConDEstad=".$court->codesaState." where PreMzn='".$pm."' and PreLote='".$pl."'";
+                                $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                                $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                                if(!$stmtCoagua || !$stmtCodesa)
+                                    return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
+                            }
+                            if($row['CodTipSer']=='2')
+                            {
+                                $scriptCoagua = "update COAGUA set ConEstado=".$court->coaguaState." where PreMzn='".$pm."' and PreLote='".$pl."'";
+                                $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                                if(!$stmtCoagua)
+                                    return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
+                            }
+                            if($row['CodTipSer']=='3')
+                            {
+                                $scriptCodesa = "update CODESA set ConDEstad=".$court->codesaState." where PreMzn='".$pm."' and PreLote='".$pl."'";
+                                $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                                if(!$stmtCodesa)
+                                    return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
+                            }
                             if($court->delete())
                             {
                                 $listCuts = TEvidence::where('idCou',$court->idCou)->get();
@@ -371,6 +426,34 @@ class TecnicalController extends Controller
             {
                 if($r->state=='false')
                 {
+                    $script = "select CodTipSer,* from CONEXION where InscriNro='".$r->inscription."'";
+                    $stmt = sqlsrv_query($conSql, $script);
+                    $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC);
+                    $pm = $row['PreMzn'];
+                    $pl = $row['PreLote'];
+                    if($row['CodTipSer']=='1')
+                    {
+                        $scriptCoagua = "update COAGUA set ConEstado=1 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                        $scriptCodesa = "update CODESA set ConDEstad=1 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                        $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                        $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                        if(!$stmtCoagua || !$stmtCodesa)
+                            return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador..']);
+                    }
+                    if($row['CodTipSer']=='2')
+                    {
+                        $scriptCoagua = "update COAGUA set ConEstado=1 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                        $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                        if(!$stmtCoagua)
+                            return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
+                    }
+                    if($row['CodTipSer']=='3')
+                    {
+                        $scriptCodesa = "update CODESA set ConDEstad=1 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                        $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                        if(!$stmtCodesa)
+                            return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
+                    }
                     $court = TCourt::where('idAss',Session::get('assign')->idAss)->where('inscription',$r->inscription)->first();
                     if($court)
                     {
@@ -403,6 +486,35 @@ class TecnicalController extends Controller
                     $activate = TActivation::where('idAss',Session::get('assign')->idAss)->where('inscription',$r->inscription)->first();
                     if($activate)
                     {
+                        $script = "select CodTipSer,* from CONEXION where InscriNro='".$r->inscription."'";
+                        $stmt = sqlsrv_query($conSql, $script);
+                        $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC);
+                        $pm = $row['PreMzn'];
+                        $pl = $row['PreLote'];
+                        if($row['CodTipSer']=='1')
+                        {
+                            $scriptCoagua = "update COAGUA set ConEstado=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $scriptCodesa = "update CODESA set ConDEstad=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                            $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                            if(!$stmtCoagua || !$stmtCodesa)
+                                return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador..']);
+                        }
+                        if($row['CodTipSer']=='2')
+                        {
+                            $scriptCoagua = "update COAGUA set ConEstado=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCoagua = sqlsrv_query($conSql, $scriptCoagua);
+                            if(!$stmtCoagua)
+                                return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
+                        }
+                        if($row['CodTipSer']=='3')
+                        {
+                            $scriptCodesa = "update CODESA set ConDEstad=2 where PreMzn='".$pm."' and PreLote='".$pl."'";
+                            $stmtCodesa = sqlsrv_query($conSql, $scriptCodesa);
+                            if(!$stmtCodesa)
+                                return response()->json(['state' => false, 'checked' => false, 'message' => 'Ocurrio un error, porfavor contactese con el Administrador.']);
+                        }
+
                         if($activate->delete())
                         {
                             $listEvidence = TEvidence::where('idAct',$activate->idAct)->get();
