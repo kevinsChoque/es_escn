@@ -12,7 +12,7 @@ class Controller extends BaseController
     public function connectionSql()
     {
         $serverName = 'KEVIN-O3VME56';
-        $connectionInfo = array("Database"=>"sicem_ab_local","CharacterSet"=>"UTF-8");
+        $connectionInfo = array("Database"=>"SICEM_AB_k","CharacterSet"=>"UTF-8");
         // $serverName = 'informatica2-pc\sicem_bd';
         // $connectionInfo = array(
         //     "Database" => "SICEM_AB",

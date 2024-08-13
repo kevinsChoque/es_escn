@@ -36,6 +36,7 @@ function initDatatableDD(idTable)
         "responsive": true,
         "autoWidth":false,
         "lengthMenu": [[5, 10,25, -1], [5, 10,25, "Todos"]],
+        "pageLength": -1,
         "language": {
             "info": "Mostrando la pagina _PAGE_ de _PAGES_. (Total: _MAX_)",
             "search":"",

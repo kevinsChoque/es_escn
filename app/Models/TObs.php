@@ -5,21 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TAssign extends Model
+class TObs extends Model
 {
-    protected $table='assign';
-	protected $primaryKey='idAss';
+    protected $table='obs';
+	protected $primaryKey='idObs';
 	public $incrementing=false;
 	public $timestamps=false;
 
     protected $fillable = [
+        'idObs',
         'idAss',
-        'idEnd',
-        'idTec',
-        'month',
-        'flat',
-        'filter',
-        'listCutsOld',
-        'cant',
+        'inscription',
+        'comment'
     ];
 }

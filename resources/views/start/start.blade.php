@@ -8,7 +8,8 @@
 <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
 <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
 
-
+<link rel="stylesheet" href="{{asset('escn/public/plugins/datatables/dataTables.dataTables.css')}}">
+<link rel="stylesheet" href="{{asset('escn/public/plugins/datatables/responsive.dataTables.css')}}">
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.js" integrity="sha512-RCgrAvvoLpP7KVgTkTctrUdv7C6t7Un3p1iaoPr1++3pybCyCsCZZN7QEHMZTcJTmcJ7jzexTO+eFpHk4OCFAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js" integrity="sha512-hUhvpC5f8cgc04OZb55j0KNGh4eh7dLxd/dPSJ5VyzqDWxsayYbojWyl5Tkcgrmb/RVKCRJI1jNlRbVP4WWC4w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.css" integrity="sha512-YdYyWQf8AS4WSB0WWdc3FbQ3Ypdm0QCWD2k4hgfqbQbRCJBEgX0iAegkl2S1Evma5ImaVXLBeUkIlP6hQ1eYKQ==" crossorigin="anonymous" referrerpolicy="no-referrer" /> --}}
@@ -100,7 +101,22 @@
                                         <option value="96">96</option>
                                         <option value="97">97</option>
                                     </optgroup>
-                                    </select>
+                                    <optgroup label="Sector 4">
+                                        <option value="43">43</option>
+                                        <option value="44">44</option>
+                                        <option value="46">46</option>
+                                        <option value="47">47</option>
+                                        <option value="48">48</option>
+                                        <option value="30">30</option>
+                                        <option value="31">31</option>
+                                        <option value="32">32</option>
+                                    </optgroup>
+                                    <optgroup label="Sector 5">
+                                        <option value="82">82</option>
+                                        <option value="83">83</option>
+                                        <option value="84">84</option>
+                                    </optgroup>
+                                </select>
                             </div>
                         </div>
                         <div class="col-lg-3">
@@ -180,7 +196,7 @@
                     </div>
                 </form>
                 <div class="col-lg-12">
-                    <button class="btn btn-success w-100 fw-bold searchRecords">Buscar registros</button>
+                    <button class="btn btn-success w-100 fw-bold searchRecords"><i class="fa fa-search"></i> Buscar registros</button>
                 </div>
             </div>
             <div class="col-lg-12">
@@ -350,6 +366,8 @@ $('.saveEnding').on('click',function(){
             console.log(r);
             if(r.state)
             {
+                $('#tecnical').select2('destroy');
+                fillRecordsTecnical();
                 $('.messageDateEnding>h3').html('Fecha de finalizacion de los programas: '+formatDate(r.end.date)+' | a las '+r.end.hour);
                 $('.messageDateEnding').css('display','block');
                 $('#modalEnding').modal('hide')
@@ -413,6 +431,8 @@ $('.saveChangeEnding').on('click',function(){
             console.log(r);
             if(r.state)
             {
+                $('#tecnical').select2('destroy');
+                fillRecordsTecnical();
                 $('.messageDateEnding>h3').html('Fecha de finalizacion de los programas: '+formatDate(r.end.date)+' | a las '+r.end.hour);
                 $('.messageDateEnding').css('display','block');
                 $('#modalEnding').modal('hide')
@@ -696,4 +716,7 @@ function initToolTip()
     tippy('.ttService', {content: "Limpiar caja de servicios.",});
 }
 </script>
+<script src="{{asset('escn/public/plugins/datatables/dataTables.js')}}"></script>
+<script src="{{asset('escn/public/plugins/datatables/dataTables.responsive.js')}}"></script>
+<script src="{{asset('escn/public/plugins/datatables/responsive.dataTables.js')}}"></script>
 @endsection

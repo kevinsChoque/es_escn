@@ -120,12 +120,12 @@ class CourtController extends Controller
                 $conCategory = strpos($r->categories, 'all') !== false ? " " : " and LEFT(i.Tarifx, 1) in (".$categories.") ";
                 $conServices = strpos($r->services, 'all') !== false ? " and c.CodTipSer in (1,2,3) " : " and c.CodTipSer in (".$r->services.") ";
 
-                $script = "select c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
+                $script = "select i.CtaMesActOldEscn as CtaMesActOld,i.StateUserEscn as courtState,t.FacEstado as paid, c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
                 rz.CalTip + ' ' + rz.CalDes as streetDescription,i.Tarifx as rate, T.FMedidor as meter,i.CtaMesAct as monthDebt, i.CtaFacSal as amount, c.CodTipSer as serviceEnterprise, t.FConsumo as consumption
                     from TOTFAC t INNER JOIN CONEXION c ON t.InscriNrx=c.InscriNro
                     left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
                     left outer join rzcalle rz ON rz.calcod = c.precalle
-                    where t.InscriNrx is not null and i.CourtEscn is null ".$conRoutes.$conMonth.$conMonthDebt.$conStateReceipt.$conCategory.$conServices;
+                    where t.InscriNrx is not null and i.CourtEscn is null ".$conRoutes.$conMonth.$conMonthDebt.$conStateReceipt.$conCategory.$conServices." order by c.PreMzn, c.PreLote";
 // dd($script);
 $ppp=$script;
                 $lastFilter = " where t.InscriNrx is not null ".$conRoutes.$conMonth.$conMonthDebt.$conStateReceipt.$conServices;
@@ -137,7 +137,7 @@ $ppp=$script;
                 $arreglo = array();
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) )
                 {   $arreglo[] = $row;}
-                session(['listCuts' => $arreglo]);
+                // session(['listCuts' => $arreglo]);
                 return response()->json(['estado' => true,"data"=>$arreglo, "ppp"=>$ppp]);
             }
             else
@@ -165,13 +165,46 @@ $ppp=$script;
                         left outer join rzcalle rz ON rz.calcod = c.precalle
                         where i.CourtEscn = '".$assign->flat."' and t.FacFecFac='".$this->month[ucfirst($assign->month)]."' order by c.PreMzn, c.PreLote";
 
+                // $script = "select c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
+                // rz.CalTip + ' ' + rz.CalDes as streetDescription,i.Tarifx as rate, T.FMedidor as meter,i.CtaMesAct as monthDebt, i.CtaFacSal as amount, c.CodTipSer as serviceEnterprise, t.FConsumo as consumption
+                //     from TOTFAC t INNER JOIN CONEXION c ON t.InscriNrx=c.InscriNro
+                //     left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
+                //     left outer join rzcalle rz ON rz.calcod = c.precalle
+                //     where t.InscriNrx is not null   and c.PreMzn in (80)  and t.FacFecFac='01-06-2024'  and i.CtaMesAct=2  and t.FacEstado=0   and c.CodTipSer in (1,2,3) and i.CourtEscn = '2_junio_2024'";
+
+                // $script = "select c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
+                // rz.CalTip + ' ' + rz.CalDes as streetDescription,i.Tarifx as rate, T.FMedidor as meter,i.CtaMesAct as monthDebt, i.CtaFacSal as amount, c.CodTipSer as serviceEnterprise, t.FConsumo as consumption
+                //     from TOTFAC t INNER JOIN CONEXION c ON t.InscriNrx=c.InscriNro
+                //     left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
+                //     left outer join rzcalle rz ON rz.calcod = c.precalle ".$assign->filter." and i.CourtEscn = '".$assign->flat."'";
+
                         // dd($script);
+                $start_time = microtime(true);
                 $stmt = sqlsrv_query($conSql, $script);
                 $arrayRecords = array();
+                $end_time = microtime(true);
+                $execution_time = $end_time - $start_time;
+
+// Muestra el tiempo de ejecución
+// dd("El tiempo de ejecución fue de $execution_time segundos.");
                 // dd(count($arrayRecords));
+                $start_time2 = microtime(true);
+                // $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC);
+                // $arrayRecords = sqlsrv_fetch_all($stmt, SQLSRV_FETCH_ASSOC);
+                // dd(gettype($row),json_encode($row));
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) )
                 {   $arrayRecords[] = $row;}
-                return response()->json(['state' => true,"data"=>$arrayRecords,"c"=>count($arrayRecords)]);
+                $end_time2 = microtime(true);
+                $execution_time2 = $end_time2 - $start_time2;
+// dd("El tiempo de ejecución fue de $execution_time2 segundos.--------------");
+                return response()->json(['state' => true,
+                    "data"=>$arrayRecords,
+                    "c"=>count($arrayRecords),
+                    "consulta" => $script,
+                    "eje" => $execution_time,
+                    "whi" => $execution_time2,
+                    "assign" => $assign
+                ]);
             }
             else
                 return response()->json(['state' => false, 'message' => 'Ocurrio un error en la conexion al sistema.']);

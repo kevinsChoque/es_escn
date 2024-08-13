@@ -8,6 +8,8 @@ use App\Http\Controllers\TecnicalController;
 use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\EndingController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AssignController;
+use App\Http\Controllers\ObsController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -32,6 +34,12 @@ Route::post('tecnical/assign',[TecnicalController::class, 'actAssign'])->name('a
 Route::post('tecnical/courtUser',[TecnicalController::class, 'actCourtUser'])->name('courtUser');
 Route::post('tecnical/activateUser',[TecnicalController::class, 'actActivateUser'])->name('activateUser');
 Route::get('tecnical/showAssignTecnical',[TecnicalController::class, 'actShowAssignTecnical'])->name('showAssignTecnical');
+Route::post('tecnical/updateRecords',[TecnicalController::class, 'actUpdateRecords'])->name('updateRecords');
+Route::post('tecnical/showBlue',[TecnicalController::class, 'actShowBlue'])->name('showBlue');
+
+// --------------------------------------------------------------------test
+
+Route::post('tecnical/listCut',[TecnicalController::class, 'actListCut'])->name('listCut');
 // evidence
 
 Route::post('evidence/sendEvidence',[EvidenceController::class, 'actSendEvidence'])->name('sendEvidence');
@@ -46,6 +54,18 @@ Route::post('ending/saveChangeEnding',[EndingController::class, 'actSaveChangeEn
 // reportes
 
 Route::get('report/showReport',[ReportController::class, 'actShowReport'])->name('showReport');
+Route::post('report/advanceCuts',[ReportController::class, 'actAdvanceCuts'])->name('advanceCuts');
+// asignaciones
+Route::get('assign/listAssign',[AssignController::class, 'actListAssign'])->name('listAssign');
+Route::post('assign/deleteAssign',[AssignController::class, 'actDeleteAssign'])->name('deleteAssign');
+// observacion
+
+Route::post('obs/showObs',[ObsController::class, 'actShowObs'])->name('showObs');
+Route::post('obs/saveObs',[ObsController::class, 'actSaveObs'])->name('saveObs');
+
+
+
+
 
 
 
