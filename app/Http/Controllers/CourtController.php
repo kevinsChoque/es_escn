@@ -18,7 +18,7 @@ class CourtController extends Controller
         'Junio' => '01-06-2024',
         'Julio' => '01-07-2024',
         'Agosto' => '01-08-2024',
-        'Septiembre' => '01-09-2024',
+        'Setiembre' => '01-09-2024',
         'Octubre' => '01-10-2024',
         'Noviembre' => '01-11-2024',
         'Diciembre' => '01-12-2024',
@@ -113,7 +113,7 @@ class CourtController extends Controller
                 $conRoutes = " and c.PreMzn in (".$r->routes.") ";
                 $conMonth = " and t.FacFecFac='".$this->month[$r->month]."' ";
                 $conMonthDebt = " and i.CtaMesAct=".$r->monthDebt." ";
-                $conMonthDebt = $r->monthDebt==3 ? " and i.CtaMesAct >=".$r->monthDebt." " : " and i.CtaMesAct=".$r->monthDebt." ";
+                $conMonthDebt = $r->monthDebt==3 || $r->monthDebt==18 ? " and i.CtaMesAct >=".$r->monthDebt." " : " and i.CtaMesAct=".$r->monthDebt." ";
                 $conStateReceipt = " and t.FacEstado=".$r->stateReceipt." ";
                 // $conCategory = $r->category!='all' ? " and LEFT(i.Tarifx, 1) = '".$r->category."' ":'';
                 $categories = $this->formatCategories($r->categories);
@@ -131,6 +131,9 @@ $ppp=$script;
                 $lastFilter = " where t.InscriNrx is not null ".$conRoutes.$conMonth.$conMonthDebt.$conStateReceipt.$conServices;
                 session(['lastFilter' => $lastFilter]);
                 session(['nameMonth' => $r->nameMonth]);
+
+                session(['routes' => $r->routes]);
+                session(['monthDebt' => $r->monthDebt]);
 
 
                 $stmt = sqlsrv_query($conSql, $script);

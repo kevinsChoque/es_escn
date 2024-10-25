@@ -19,7 +19,10 @@ class TAssign extends Model
         'month',
         'flat',
         'filter',
+        'routes',
+        'monthDebt',
         'listCutsOld',
         'cant',
+        'dr',
     ];
 }

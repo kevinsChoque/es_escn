@@ -11,6 +11,11 @@
 
 <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
 <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
+<div class="container-fluid mt-3">
+    <div class="row containerTask">
+    </div>
+</div>
+
 
 <div class="container-fluid">
     <div class="card mt-3">
@@ -25,12 +30,12 @@
         </div>
         <div class="card-body">
             <div id="colorFilters" class="mb-3">
-                <button id="filterActivate" class="btn btn-success">Mostrar Activos</button>
-                <button id="filterGreen" class="btn btn-success" style="background: #bbd1a2;color: black;">Mostrar Verdes</button>
-                <button id="filterRed" class="btn btn-danger">Mostrar Rojos</button>
-                <button id="filterBlue" class="btn btn-primary">Mostrar Azules</button>
-                <button id="filterNone" class="btn btn-light">Mostrar Faltantes</button>
-                <button id="filterAll" class="btn btn-secondary">Mostrar Todos</button>
+                <button id="filterActivate" class="btn btn-success">Usuarios que pagaron</button>
+                <button id="filterGreen" class="btn btn-success" style="background: #bbd1a2;color: black;">Usuarios activados</button>
+                <button id="filterRed" class="btn btn-danger">Usuarios cortados</button>
+                <button id="filterBlue" class="btn btn-primary">Listos para activar</button>
+                <button id="filterNone" class="btn btn-light">Registros sin accion</button>
+                <button id="filterAll" class="btn btn-secondary">Todos los registros asignados</button>
             </div>
             <div class="row">
                 {{-- <div class="col-lg-12">
@@ -170,24 +175,27 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="mb-3">
-                            <label for="obs" class="form-label">Ingrese la observacion | <b>se guardara automaticamente</b>:</label>
-                            <textarea class="form-control" id="obs" rows="6" onkeyup="saveObs();"></textarea>
+                            <label for="obs" class="form-label font-weight-bold">Ingrese la observacion:</label>
+                            <textarea class="form-control obs" id="obs" rows="6"></textarea>
+                            {{-- onkeyup="saveObs();" --}}
                           </div>
                     </div>
                 </div>
                 <br>
-                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="display: none;">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="pills-oload-tab" data-bs-toggle="pill" data-bs-target="#pills-oload" type="button" role="tab" aria-controls="pills-oload" aria-selected="true">Subir imagenes</button>
+                <ul class="nav nav-pills mb-3" id="pills-tab-obs" role="tablist">
+                    <li class="nav-item" role="loadObs">
+                        <button class="nav-link active" id="pills-oload-tab-obs" data-bs-toggle="pill" data-bs-target="#pills-oload-obs" type="button" role="tab" aria-controls="pills-oload-obs" aria-selected="true">Subir imagenes</button>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pills-show-images-tab" data-bs-toggle="pill" data-bs-target="#pills-show-images" type="button" role="tab" aria-controls="pills-show-images" aria-selected="false">Ver imagenes subidas</button>
+                    <li class="nav-item" role="showObs">
+                        <button class="nav-link" id="pills-show-images-tab-obs" data-bs-toggle="pill" data-bs-target="#pills-show-images-obs" type="button" role="tab" aria-controls="pills-show-images-obs" aria-selected="false">Ver imagenes subidas</button>
                     </li>
                 </ul>
-                <div class="tab-content" id="pills-tabContent">
-                    <div class="tab-pane fade show active" id="pills-oload" role="tabpanel" aria-labelledby="pills-oload-tab">
+                <div class="tab-content" id="pills-tabContent-obs">
+                    <div class="tab-pane fade show active" id="pills-oload-obs" role="tabpanel" aria-labelledby="pills-oload-tab-obs">
                         <form method="post" enctype="multipart/form-data" class="dropzone dz-clickable h-100 text-center" id="dzLoadObs">
                             <input type="hidden" id="oinscription" name="oinscription">
+                            <input type="hidden" id="idObs" name="idObs">
+                            <input type="hidden" id="oobs" name="oobs">
                             <div>
                                 <h6 class="text-center font-weight-bold">Imagenes subidas</h6>
                             </div>
@@ -197,11 +205,11 @@
                             @csrf
                         </form>
                     </div>
-                    <div class="tab-pane fade" id="pills-show-images" role="tabpanel" aria-labelledby="pills-show-images-tab">
+                    <div class="tab-pane fade" id="pills-show-images-obs" role="tabpanel" aria-labelledby="pills-show-images-tab-obs">
                         <div class="alert alert-info messageObs" style="display: none;">
                             <p class="m-0 fw-bold">No cuenta con imagenes guardadas.</p>
                         </div>
-                        <button class="btn btn-primary w-100 mb-2" onclick="updateImage()"><i class="fa fa-sync"></i> Actualizar imagenes</button>
+                        <button class="btn btn-primary w-100 mb-2" onclick="updateImageObs()"><i class="fa fa-sync"></i> Actualizar imagenes</button>
                         <div class="row containerImagesObs">
                         </div>
                     </div>
@@ -209,7 +217,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary saveEvidence">Guardar evidencias</button>
+                <button type="button" class="btn btn-primary saveImgObs">Guardar imagenes de la observacion</button>
             </div>
         </div>
     </div>
@@ -220,6 +228,7 @@
     .blue-row{background: rgba(0, 0, 255, 0.5) !important;}
     .red-row{background: rgba(255, 0, 0, 0.5) !important;}
     .none-row{background: none !important;}
+    .selected-task{background: rgb(31 208 58 / 50%) !important;}
 </style>
 <script src="{{asset('escn/public/plugins/dropzone/dropzone-min.js')}}"></script>
 <link href="{{asset('escn/public/plugins/dropzone/dropzone.css')}}" rel="stylesheet" type="text/css" />
@@ -227,9 +236,12 @@
 var tableRecordsCuts;
 var tableRecordsRehab;
 var tableRecordsBlue;
+
+var tabletest;
 // Dropzone.options.myDropzone = false;
 Dropzone.autoDiscover = false;
 var myDropzone = '';
+var myDropzoneObs = '';
 $(document).ready( function ()
 {
     console.log("{{ asset('storage/') }}")
@@ -238,9 +250,65 @@ $(document).ready( function ()
     tableRecordsBlue = $('.containerRecordsBlue').html();
     // fillRecords();
     fillRecords2();
+    fillTask();
     initDropzone();
+    initDropzoneObs();
 });
+// $('.loadAssign').on('click',function(){
+//     alert($(this).attr('data-idAss'))
+// })
+$('.obs').on('blur',function(){
+    $('#oobs').val($(this).val())
+})
+function loadAssign(ele)
+{
+    // alert($(ele).attr('data-idAss'))
+    $('.containerRecordsCuts>div').remove();
+    $('.containerRecordsCuts').html(tableRecordsCuts);
+    fillRecords3($(ele).attr('data-idAss'))
+    $('.selected-task').removeClass('selected-task');
+    $(ele).find('.card').addClass('selected-task');
+}
+console.log("---"+"{{Session::get('assign')->idAss}}");
+function fillTask()
+{
+    jQuery.ajax({
+        url: "{{ route('fillTask') }}",
+        method: 'POST',
+        dataType: 'json',
+        headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+        success: function (r) {
+            if(r.state)
+            {
+                let html = '';
+                let selected;
+                let counter = 1;
+                let idAss = "{{Session::get('assign')->idAss}}";
+                for (var i = 0; i < r.data.length; i++)
+                {
+                    selected = idAss==r.data[i].idAss?'selected-task':'';
+                    counter += i;
+                    html += '<div class="col-lg-2" onclick="loadAssign(this)" style="cursor: pointer;" data-idAss="'+r.data[i].idAss+'">'+
+                        '<div class="card shadow '+selected+'">'+
+                            '<div class="card-body p-1">'+
+                                '<h5 class="card-title">Tarea '+counter+'</h5>'+
+                                '<h6 class="card-subtitle text-muted">Etiqueta: '+r.data[i].flat+'</h6>'+
+                                '<p class="card-text">Cant.reg: '+r.data[i].cant+'</p>'+
+                            '</div>'+
+                        '</div>'+
+                    '</div>';
+                }
+                $('.containerTask').html(html);
+            }
+            else
+                alert(r.message);
+        },
+        error: function (xhr, status, error) {
+            alert("Algo salio mal, porfavor contactese con el Administrador.");
+        }
+    });
 
+}
 $('#filterActivate').on('click', function() {
     $('.containerRecordsBlue').css('display','none');
     $('.containerRecordsCuts').css('display','block');
@@ -308,11 +376,13 @@ $('#filterBlue').on('click', function() {
                         stillCut = 'rgba(255, 0, 0, 0.5)';
                         classCut = 'red-row';
                         accordingStateCourt = '<label class="fw-bold">cortado</label>' +
-                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'" checked>';
                         accordingStatePaid = '';
 
-                        evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+r.data[i].numberInscription+'">'+
-                            '<i class="fa fa-image"></i></button>';
+                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+r.data[i].numberInscription+'">'+
+                        //     '<i class="fa fa-image"></i></button>';
+
+                        evidence = "court";
                     }
                     else
                     {
@@ -320,7 +390,7 @@ $('#filterBlue').on('click', function() {
                         stillCut = 'none';
                         classCut = 'none-row';
                         accordingStateCourt = '<label class="fw-bold">sin accion</label>' +
-                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'">';
                     }
                     if(r.data[i].CtaMesActOld!=r.data[i].monthDebt && r.data[i].courtState=='4')
                     {
@@ -329,11 +399,13 @@ $('#filterBlue').on('click', function() {
                             stillCut = 'rgba(255, 0, 0, 0.5)';
                             classCut = 'red-row';
                             accordingStateCourt = '<label class="fw-bold">cortado</label>' +
-                            '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+                            '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'" checked>';
                             accordingStatePaid = '';
 
-                            evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+r.data[i].numberInscription+'">'+
-                            '<i class="fa fa-image"></i></button>';
+                            // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+r.data[i].numberInscription+'">'+
+                            // '<i class="fa fa-image"></i></button>';
+
+                            evidence = "court";
                         }
                         else
                         {
@@ -346,10 +418,12 @@ $('#filterBlue').on('click', function() {
                                     classCut = 'green-row';
                                     accordingStateCourt = '';
                                     accordingStatePaid = '<label class="fw-bold">Activado</label>' +
-                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+                                    '<input type="checkbox" class="form-check-input" onclick="activateUserAct(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'" checked>';
 
-                                    evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
-                                        '<i class="fa fa-image"></i></button>';
+                                    // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
+                                    //     '<i class="fa fa-image"></i></button>';
+
+                                    evidence = "activate";
                                 }
                                 else
                                 {
@@ -357,7 +431,7 @@ $('#filterBlue').on('click', function() {
                                     classCut = 'blue-row';
                                     accordingStateCourt = '';
                                     accordingStatePaid = '<label class="fw-bold">Activar</label>' +
-                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+                                    '<input type="checkbox" class="form-check-input" onclick="activateUserAct(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'">';
                                 }
                             }
                             else
@@ -371,10 +445,12 @@ $('#filterBlue').on('click', function() {
                                         classCut = 'green-row';
                                         accordingStateCourt = '';
                                         accordingStatePaid = '<label class="fw-bold">Activado</label>' +
-                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+                                        '<input type="checkbox" class="form-check-input" onclick="activateUserAct(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'" checked>';
 
-                                        evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
-                                            '<i class="fa fa-image"></i></button>';
+                                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
+                                        //     '<i class="fa fa-image"></i></button>';
+
+                                        evidence = "activate";
                                     }
                                     else
                                     {
@@ -382,7 +458,7 @@ $('#filterBlue').on('click', function() {
                                         classCut = 'blue-row';
                                         accordingStateCourt = '';
                                         accordingStatePaid = '<label class="fw-bold">Activar</label>' +
-                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+                                        '<input type="checkbox" class="form-check-input" onclick="activateUserAct(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'">';
                                     }
                                 }
                             }
@@ -394,10 +470,12 @@ $('#filterBlue').on('click', function() {
                         classCut = 'green-row';
                         accordingStateCourt = '';
                         accordingStatePaid = '<label class="fw-bold">Activado</label>' +
-                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+r.data[i].numberInscription+'" checked>';
+                        '<input type="checkbox" class="form-check-input" onclick="activateUserAct(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'" checked>';
 
-                        evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
-                            '<i class="fa fa-image"></i></button>';
+                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+r.data[i].numberInscription+'">'+
+                        //     '<i class="fa fa-image"></i></button>';
+
+                        evidence = "activate";
                     }
 
                     if(r.data[i].CtaMesActOld!=r.data[i].monthDebt && r.data[i].courtState === null)
@@ -410,7 +488,7 @@ $('#filterBlue').on('click', function() {
                                 stillCut = 'none';
                                 classCut = 'none-row';
                                 accordingStateCourt = '<label class="fw-bold">sin accion</label>' +
-                                '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+r.data[i].numberInscription+'">';
+                                '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+r.data[i].numberInscription+'">';
                             }
                             else
                             {
@@ -433,7 +511,7 @@ $('#filterBlue').on('click', function() {
                         }
                     }
 
-                    htmlCourt += '<tr style="background: '+stillCut+';" class="'+classCut+'">' +
+                    htmlCourt += '<tr style="background: '+stillCut+';" class="'+i+'idRowTrAct '+classCut+'">' +
                         '<td class="align-middle text-center">' + countRecords + '</td>' +
                         '<td class="align-middle text-center containerSwitchCourt">' +
                             '<div class="form-check form-switch">' +
@@ -458,7 +536,15 @@ $('#filterBlue').on('click', function() {
                         '<td class="align-middle text-center">' + novDato(r.data[i].consumption) + '</td>'+
                         '<td class="align-middle text-center">' +
                             '<div class="mb-0 conteinerEvidence">' +
-                                evidence +
+                                '<button type="button" class="btn btn-primary '+i+'idRowEvi" onclick="sendEvidence(this)" '+
+                                    'data-type="'+evidence+'" '+
+                                    'data-inscription="'+r.data[i].numberInscription+'" '+
+                                    'data-cellCode="'+ novDato(r.data[i].code) +' - '+ novDato(r.data[i].cod) + '" '+
+                                    'data-cellIns="'+ novDato(r.data[i].numberInscription) + '" '+
+                                    'data-cellCli="'+ novDato(r.data[i].client) + '" '+
+                                    'data-cellAdr="'+ novDato(r.data[i].streetDescription) + '" '+
+                                    'style="display:'+(!isEmpty(evidence)?'inline':'none')+';">'+
+                                '<i class="fa fa-image"></i></button>'+
                             '</div>' +
                             '<button type="button" class="btn btn-secondary mt-1" onclick="sendObs(this)" data-type="court" data-inscription="'+r.data[i].numberInscription+'"><i class="fa fa-comment"></i></button>'+
                         '</td>' +
@@ -472,7 +558,8 @@ $('#filterBlue').on('click', function() {
                 }
                 // console.log(htmlCourt)
                 $('#recordsBlue').html(htmlCourt);
-                initDatatableDD('tableBlue');
+                // initDatatableDD('tableBlue');
+                tabletestAct = initDatatableDD('tableBlue');
             }
             else
             {
@@ -556,6 +643,42 @@ function updateImage()
         }
     });
 }
+function updateImageObs()
+{
+    $('.overlayPage').css("display","flex");
+    jQuery.ajax({
+        url: "{{ route('showObsevi') }}",
+        method: 'POST',
+        data: {idObs: $('#idObs').val()},
+        dataType: 'json',
+        headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+        success: function (r) {
+            $('.containerImagesObs').html('');
+            if(r.data.length!=0)
+            {
+                let html = '';
+                for (var i = 0; i < r.data.length; i++)
+                {
+                    html += '<div class="card col-lg-4 p-0">'+
+                            '<img src="{{env('IMAGES_BASE_URL')}}'+r.data[i].path+'" class="card-img-top">'+
+                            '<div class="card-body p-1">'+
+                                '<p class="card-text text-center fw-bold mb-1">'+formatDate(r.data[i].date)+' | '+r.data[i].hour+'</p>'+
+                                '<a href="#" class="btn btn-danger w-100 py-1" onclick="deleteEvidenceObs(this)" data-idOe="'+r.data[i].idOe+'"><i class="fa fa-trash"></i> Eliminar</a>'+
+                            '</div>'+
+                        '</div>';
+                }
+                $('.containerImagesObs').append(html);
+            }
+            else
+                $('.messageObs').css('display','block');
+            $('.overlayPage').css("display","none");
+        },
+        error: function (xhr, status, error) {
+            $('.overlayPage').css("display","none");
+            alert("Algo salio mal, porfavor contactese con el Administrador.");
+        }
+    });
+}
 function notify(resp)
 {
     const Toast = Swal.mixin({
@@ -592,7 +715,10 @@ function initDropzone()
         submitButton.addEventListener('click', function()
         {
             if (myDropzone.getQueuedFiles().length > 0)
+            {
+                $('.overlayPage').css("display","flex");
                 myDropzone.processQueue();
+            }
             else
                 Swal.fire({title: "EVIDENCIAS",
                     text:"Agregue imagenes para guardar",
@@ -604,10 +730,96 @@ function initDropzone()
             if (response.state === false)
                 this.removeFile(file); // Remover el archivo si hay un error
             notify(response);
+            $('.overlayPage').css("display","none");
         });
     }
     });
 }
+function initDropzoneObs()
+{
+    // console.log(myDropzoneObs.getQueuedFiles().length);
+    myDropzoneObs = new Dropzone('#dzLoadObs', {
+    url: "{{route('sendImgObs')}}",
+    dictDefaultMessage: "Arrastra y suelta archivos aquí para subirlos",
+    acceptedFiles: '.jpg, .jpeg, .png',
+    maxFilesize: 50,
+    autoProcessQueue: false,
+    paramName: "files[]",
+    addRemoveLinks: true,
+    dictRemoveFile: "Remover",
+    dictInvalidFileType: "No puedes subir archivos de este tipo.",
+    init: function() {
+        const submitButton = document.querySelector('.saveImgObs');
+        myDropzoneObs = this;
+        submitButton.addEventListener('click', function()
+        {
+            // if(isEmpty($('#obs').val()))
+            // {
+            //     $('#obs').val('img');
+            //     saveObs();
+            //     Swal.fire({title: "Observacion",
+            //         text:"Intente guardar nuevamente.",
+            //         icon: "warning",
+            //     });
+            //     return;
+            // }
+            if (myDropzoneObs.getQueuedFiles().length == 0)
+            {
+                if(isEmpty($('#obs').val()))
+                {
+                    alert('ingrese alguna observacion')
+                    return;
+                }
+                console.log('enviar por aparte nomas')
+                $('.overlayPage').css("display","flex");
+                jQuery.ajax({
+                    url: "{{ route('sendImgObs') }}",
+                    method: 'POST',
+                    data: {idObs:$('#idObs').val(),oinscription:$('#oinscription').val(),oobs:$('#oobs').val(),},
+                    dataType: 'json',
+                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                    success: function (r) {
+                        notify(r)
+                        $('#modalObs').modal('hide');
+                        $('.overlayPage').css("display","none");
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Algo salio mal, porfavor contactese con el Administrador.");
+                        $(".containerSpinner").removeClass("d-flex");
+                        $(".containerSpinner").addClass("d-none");
+                        $('.overlayPage').css("display","none");
+                    }
+                });
+            }
+            else
+            {
+                // console.log('enviar todo')
+                $('.overlayPage').css("display","flex");
+                myDropzoneObs.processQueue();
+            }
+            // myDropzoneObs.processQueue();
+
+            // if (myDropzoneObs.getQueuedFiles().length > 0)
+            //     myDropzoneObs.processQueue();
+            // else
+            //     Swal.fire({title: "Observacion",
+            //         text:"Agregue imagenes para guardar",
+            //         icon: "warning",
+            //     });
+        });
+        this.on('addedfile', function(file) {});// Código que se ejecuta cuando se agrega un archivo
+        this.on("success", function(file, r) {
+            // if (response.state === false)
+            $('#idObs').val(r.idObs)
+            this.removeFile(file); // Remover el archivo si hay un error
+            notify(r);
+            $('.overlayPage').css("display","none");
+            // $('#modalObs').modal('hide');
+        });
+    }
+    });
+}
+// saveImgObs
 function cutUpdateLs(inscription,action)
 {
     var listObject = JSON.parse(localStorage.getItem('__LISTCUT__'));
@@ -641,6 +853,7 @@ function cutUpdateBd(data)
         }
     });
 }
+// var row;
 function courtUser(ele)
 {
     event.preventDefault();
@@ -664,81 +877,94 @@ function courtUser(ele)
                 dataType: 'json',
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 success: function (r) {
-                    // return response()->json(['state' => true,
-                    //     'checked' => true,
-                    //     'message' => 'Se guardo el registro de corte: con numero de inscripcion '.$r->inscription.'.'
-                    // ]);
-                    console.log(r)
                     let evidence = '';
+                    let row;
+                    let infoEdit;
                     if(r.state)
                     {
                         if(r.checked)
                         {
-                            // actualizar el ls y actualizar en bd
-                            // actualizar
-                            // cutUpdateLs($(ele).attr('data-inscription'));
-                            // actualizar bd
+                            console.log('entro aki para aserlo r.checked')
                             cutUpdateBd(cutUpdateLs($(ele).attr('data-inscription'),true));
-                            // $('.containerRecordsCuts>div').remove();
-                            // $('.containerRecordsCuts').html(tableRecordsCuts);
-                            // fillRecords2();
-                            $(ele).parent().parent().parent().css('background','rgba(255, 0, 0, 0.5)');//red---esto quedara obsoleto
-                            $(ele).parent().parent().parent().removeClass('none-row').addClass('red-row');//red
-                            $(ele).parent().find('label').html('cortado');
-                            $(ele).prop('checked', true);
+                            let idRow = $(ele).attr('data-idRow');
+                            $('.'+idRow+'idRowTr').removeClass('none-row').addClass('red-row');
 
-                            evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+$(ele).attr('data-inscription')+'">'+
-                            '<i class="fa fa-image"></i></button>';
-                            $(ele).parent().parent().parent().find('.conteinerEvidence').html(evidence);
+                            infoEdit = tabletest.row(idRow);
+                            row = infoEdit.data()
+                            row[1]=row[1].replace('sin accion', 'cortado')
+                            row[1]=row[1].replace('<input', '<input checked')
+                            row[13]=row[13].replace('none', 'inline')
+                            infoEdit.data(row).draw();
 
+                            // $(ele).parent().find('label').html('cortado');
+                            // $(ele).prop('checked', true);
+                            // $('.'+idRow+'idRowEvi').css('display','inline');
                         }
                         else
                         {
+                            console.log('else r.checked')
                             cutUpdateBd(cutUpdateLs($(ele).attr('data-inscription'),false));
-                            // $('.containerRecordsCuts>div').remove();
-                            // $('.containerRecordsCuts').html(tableRecordsCuts);
-                            // fillRecords2();
-                            $(ele).parent().parent().parent().css('background','none');//esto quedara obsoleto
-                            $(ele).parent().parent().parent().removeClass('red-row').addClass('none-row');
-                            $(ele).parent().find('label').html('sin accion');
-                            $(ele).prop('checked', false);
-                            $(ele).parent().parent().parent().find('.conteinerEvidence').html('');
+                            let idRow = $(ele).attr('data-idRow');
+                            $('.'+idRow+'idRowTr').removeClass('red-row').addClass('none-row');
+
+                            infoEdit = tabletest.row(idRow);
+                            row = infoEdit.data()
+                            row[1]=row[1].replace('cortado', 'sin accion')
+                            row[1]=row[1].replace('checked', ' ')
+                            row[13]=row[13].replace('inline', 'none')
+                            infoEdit.data(row).draw();
+
+                            // $(ele).parent().find('label').html('sin accion');
+                            // $(ele).prop('checked', false);
+                            // $('.'+idRow+'idRowEvi').css('display','none');
                         }
                     }
                     if(r.according=='paid')
                     {
                         if(r.paid)
                         {
+                            console.log('r.paid')
                             cutUpdateMonthBd(cutUpdateMonthLs($(ele).attr('data-inscription'), r.monthDebt));
-                            // $('.containerRecordsCuts>div').remove();
-                            // $('.containerRecordsCuts').html(tableRecordsCuts);
-                            // fillRecords2();
-                            $(ele).parent().parent().parent().css('background','rgba(0, 255, 0, 0.5)');
-                            $(ele).parent().parent().parent().removeClass('none-row').addClass('activate-row');
-                            $(ele).parent().parent().parent().find('.containerSwitchCourt').html(' ');
-                            $(ele).parent().parent().parent().find('.containerSwitchActivate').html(' ');
+                            let idRow = $(ele).attr('data-idRow');
+                            $('.'+idRow+'idRowTr').removeClass('none-row').addClass('activate-row');
+                            // $(ele).parent().parent().parent().find('.containerSwitchCourt').html(' ');
+                            // $(ele).parent().parent().parent().find('.containerSwitchActivate').html(' ');
+                            // $('.'+idRow+'idRowEvi').css('display','none');
+
+                            infoEdit = tabletest.row(idRow);
+                            row = infoEdit.data()
+                            row[1]=' ';
+                            row[2]=' ';
+                            row[13]=row[13].replace('inline', 'none')
+                            infoEdit.data(row).draw();
                         }
                         else
                         {
-                            console.log('entro a ki----------------------------------------------------------------')
+                            console.log('else r.paid')
                             cutUpdateMonthBd(cutUpdateMonthLs($(ele).attr('data-inscription'), r.monthDebt));
-                            // $('.containerRecordsCuts>div').remove();
-                            // $('.containerRecordsCuts').html(tableRecordsCuts);
-                            // fillRecords2();
-                            $(ele).parent().parent().parent().css('background','rgba(0, 0, 255, 0.5)');
-                            $(ele).parent().parent().parent().removeClass('red-row').addClass('blue-row');
+                            let idRow = $(ele).attr('data-idRow');
+                            $('.'+idRow+'idRowTr').removeClass('red-row').addClass('blue-row');
+
                             let accordingStatePaid = '<label class="fw-bold">Activar</label>' +
-                                '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+$(ele).attr('data-inscription')+'">';
-                            $(ele).parent().parent().parent().find('.containerSwitchActivate>div').html(accordingStatePaid);
-                            $(ele).parent().parent().parent().find('.containerSwitchCourt').html(' ');
+                                '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+idRow+'" data-inscription="'+$(ele).attr('data-inscription')+'">';
+
+                            // $(ele).parent().parent().parent().find('.containerSwitchActivate>div').html(accordingStatePaid);
+                            // $(ele).parent().parent().parent().find('.containerSwitchCourt').html(' ');
+                            // $('.'+idRow+'idRowEvi').css('display','none');
+
+                            infoEdit = tabletest.row(idRow);
+                            row = infoEdit.data()
+                            row[1]=' ';
+                            row[2]=row[2].replace('</div>', accordingStatePaid+'</div>')
+                            row[13]=row[13].replace('inline', 'none')
+                            infoEdit.data(row).draw();
                         }
-                        $(ele).parent().parent().parent().find('.conteinerEvidence').html('');
                     }
-                    Swal.fire({
-                        title: r.message,
-                        text: r.state?"La informacion fue registrada":'',
-                        icon: r.state? "success" : "error",
-                    });
+                    // Swal.fire({
+                    //     title: r.message,
+                    //     text: r.state?"La informacion fue registrada":'',
+                    //     icon: r.state? "success" : "error",
+                    // });
                     $(".containerSpinner").removeClass("d-flex");
                     $(".containerSpinner").addClass("d-none");
                 },
@@ -755,9 +981,9 @@ function courtUser(ele)
 }
 function cutUpdateMonthLs(inscription,monthDebt)
 {
-    console.log(typeof monthDebt);
-    console.log(monthDebt);
-    console.log('-------------')
+    // console.log(typeof monthDebt);
+    // console.log(monthDebt);
+    // console.log('-------------')
     var listObject = JSON.parse(localStorage.getItem('__LISTCUT__'));
     for (var i = 0; i < listObject.length; i++)
     {
@@ -779,7 +1005,8 @@ function cutUpdateMonthBd(data)
         dataType: 'json',
         headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
         success: function (r) {
-            console.log(r)
+            // console.log(r)
+            notifyGlobal(r)
         },
         error: function (xhr, status, error) {
             alert("Algo salio mal, porfavor contactese con el Administrador.");
@@ -802,7 +1029,7 @@ function actUpdateLs(inscription, action)
     var updatedListString = JSON.stringify(listObject);
     localStorage.setItem('__LISTCUT__', updatedListString);
     return updatedListString;
-    console.log('Datos actualizados en localStorage');
+    // console.log('Datos actualizados en localStorage');
 }
 function actUpdateBd(data)
 {
@@ -822,6 +1049,112 @@ function actUpdateBd(data)
         }
     });
 }
+
+function activateUserAct(ele)
+{
+    event.preventDefault();
+    Swal.fire({
+    title: $(ele).is(':checked')?"Esta seguro de activar?":"Esta seguro de cancelar activacion?",
+    text: $(ele).is(':checked')?"Confirme la accion":"Al cancelar la activacion, las evidencias asociadas se eliminaran. ¿DESEA CONTINUAR?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Si, confirmar"
+    }).then((result) => {
+        if (result.isConfirmed)
+        {
+            $(".containerSpinner").removeClass("d-none");
+            $(".containerSpinner").addClass("d-flex");
+            jQuery.ajax({
+                url: "{{ route('activateUser') }}",
+                method: 'POST',
+                data: {state: $(ele).is(':checked'),inscription: $(ele).attr('data-inscription')},
+                dataType: 'json',
+                headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                success: function (r) {
+                    console.log(r)
+                    let infoEdit;
+                    let row;
+                    if(r.state)
+                    {
+                        if(r.checked)
+                        {
+                            console.log('a: if(r.checked)')
+                            // actualizar courtState y actualizar en base de datos
+                            actUpdateBd(actUpdateLs($(ele).attr('data-inscription'),true));
+                            let idRow = $(ele).attr('data-idRow');
+                            $('.'+idRow+'idRowTrAct').removeClass('blue-row').addClass('green-row');
+
+                            // $(ele).parent().parent().parent().css('background','rgba(119, 163, 69, 0.5)');//caña verde
+                            // $(ele).parent().parent().parent().removeClass('blue-row').addClass('green-row');
+
+                            // $(ele).parent().find('label').html('Activado');
+                            // $(ele).prop('checked', true);
+
+                            infoEdit = tabletestAct.row(idRow);
+                            row = infoEdit.data()
+                            arow = row;
+                            row[2]=row[2].replace('Activar', 'Activado')
+                            row[2]=row[2].replace('<input', '<input checked')
+                            row[13]=row[13].replace('none', 'inline')
+                            row[13]=row[13].replace('data-type', 'data-type="activate"')
+                            infoEdit.data(row).draw();
+
+
+                            // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+$(ele).attr('data-inscription')+'">'+
+                            // '<i class="fa fa-image"></i></button>';
+                            // $(ele).parent().parent().parent().find('.conteinerEvidence').html(evidence);
+                        }
+                        else
+                        {
+                            console.log('a: else')
+                            actUpdateBd(actUpdateLs($(ele).attr('data-inscription'),false));
+                            let idRow = $(ele).attr('data-idRow');
+                            $('.'+idRow+'idRowTrAct').removeClass('green-row').addClass('blue-row');
+
+                            // $(ele).parent().parent().parent().css('background','rgba(0, 0, 255, 0.5)');
+                            // $(ele).parent().parent().parent().removeClass('green-row').addClass('blue-row');
+
+                            // $(ele).parent().find('label').html('Activar');
+                            // $(ele).prop('checked', false);
+
+                            infoEdit = tabletestAct.row(idRow);
+                            row = infoEdit.data()
+                            arow = row;
+                            row[2]=row[2].replace('Activado', 'Activar')
+                            row[2]=row[2].replace('checked', ' ')
+                            row[13]=row[13].replace('inline', 'none')
+
+                            infoEdit.data(row).draw();
+
+
+                            // $(ele).parent().parent().parent().find('.conteinerEvidence').html('');
+                        }
+                    }
+                    else
+                        alert('Algo salio mal, porfavor contactese con el Administrador.');
+                    Swal.fire({
+                        title: r.message,
+                        text: r.state?"La informacion fue registrada":'',
+                        icon: r.state? "success" : "error",
+                    });
+                    $(".containerSpinner").removeClass("d-flex");
+                    $(".containerSpinner").addClass("d-none");
+                },
+                error: function (xhr, status, error) {
+                    alert("Algo salio mal, porfavor contactese con el Administrador.");
+                    $(".containerSpinner").removeClass("d-flex");
+                    $(".containerSpinner").addClass("d-none");
+                }
+            });
+
+        }
+        // else
+        //     $(ele).prop('checked', false);
+    });
+}
+var arow;
 function activateUser(ele)
 {
     event.preventDefault();
@@ -846,29 +1179,62 @@ function activateUser(ele)
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 success: function (r) {
                     console.log(r)
+                    let infoEdit;
+                    let row;
                     if(r.state)
                     {
                         if(r.checked)
                         {
+                            console.log('a: if(r.checked)')
                             // actualizar courtState y actualizar en base de datos
                             actUpdateBd(actUpdateLs($(ele).attr('data-inscription'),true));
-                            $(ele).parent().parent().parent().css('background','rgba(119, 163, 69, 0.5)');//caña verde
-                            $(ele).parent().parent().parent().removeClass('blue-row').addClass('green-row');
-                            $(ele).parent().find('label').html('Activado');
-                            $(ele).prop('checked', true);
+                            let idRow = $(ele).attr('data-idRow');
+                            $('.'+idRow+'idRowTr').removeClass('blue-row').addClass('green-row');
 
-                            evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+$(ele).attr('data-inscription')+'">'+
-                            '<i class="fa fa-image"></i></button>';
-                            $(ele).parent().parent().parent().find('.conteinerEvidence').html(evidence);
+                            // $(ele).parent().parent().parent().css('background','rgba(119, 163, 69, 0.5)');//caña verde
+                            // $(ele).parent().parent().parent().removeClass('blue-row').addClass('green-row');
+
+                            // $(ele).parent().find('label').html('Activado');
+                            // $(ele).prop('checked', true);
+
+                            infoEdit = tabletest.row(idRow);
+                            row = infoEdit.data()
+                            arow = row;
+                            row[2]=row[2].replace('Activar', 'Activado')
+                            row[2]=row[2].replace('<input', '<input checked')
+                            row[13]=row[13].replace('none', 'inline')
+                            row[13]=row[13].replace('data-type', 'data-type="activate"')
+                            infoEdit.data(row).draw();
+
+
+                            // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+$(ele).attr('data-inscription')+'">'+
+                            // '<i class="fa fa-image"></i></button>';
+                            // $(ele).parent().parent().parent().find('.conteinerEvidence').html(evidence);
                         }
                         else
                         {
+                            console.log('a: else')
                             actUpdateBd(actUpdateLs($(ele).attr('data-inscription'),false));
-                            $(ele).parent().parent().parent().css('background','rgba(0, 0, 255, 0.5)');
-                            $(ele).parent().parent().parent().removeClass('green-row').addClass('blue-row');
-                            $(ele).parent().find('label').html('Activar');
-                            $(ele).prop('checked', false);
-                            $(ele).parent().parent().parent().find('.conteinerEvidence').html('');
+                            let idRow = $(ele).attr('data-idRow');
+                            $('.'+idRow+'idRowTr').removeClass('green-row').addClass('blue-row');
+
+                            // $(ele).parent().parent().parent().css('background','rgba(0, 0, 255, 0.5)');
+                            // $(ele).parent().parent().parent().removeClass('green-row').addClass('blue-row');
+
+                            // $(ele).parent().find('label').html('Activar');
+                            // $(ele).prop('checked', false);
+
+                            infoEdit = tabletest.row(idRow);
+                            row = infoEdit.data()
+                            arow = row;
+                            row[2]=row[2].replace('Activado', 'Activar')
+                            row[2]=row[2].replace('checked', ' ')
+                            row[13]=row[13].replace('inline', 'none')
+
+                            infoEdit.data(row).draw();
+
+
+                            // $(ele).parent().parent().parent().find('.conteinerEvidence').html('');
                         }
                     }
                     else
@@ -889,12 +1255,25 @@ function activateUser(ele)
             });
 
         }
-        else
-            $(ele).prop('checked', false);
+        // else
+        //     $(ele).prop('checked', false);
     });
 }
 function sendEvidence(ele)
 {
+    // alert($(ele).attr('data-type'))
+    myDropzone.removeAllFiles();
+    $('#inscription').val($(ele).attr('data-inscription'))
+    $('#type').val($(ele).attr('data-type'))
+    $('.showCod').html($(ele).attr('data-cellCode'));
+    $('.showIns').html($(ele).attr('data-cellIns'));
+    $('.showCli').html($(ele).attr('data-cellCli'));
+    $('.showDir').html($(ele).attr('data-cellAdr'));
+    $('#modalEvidenceLabel').html($(ele).attr('data-type')=="court"?
+        'Subir evidencias: <span class="badge bg-danger">CORTADO</span>':
+        'Subir evidencias: <span class="badge bg-success">ACTIVADO</span>'
+    );
+
     $('.messageEvidences').css('display','none');
     $('.overlayPage').css("display","flex");
     jQuery.ajax({
@@ -904,6 +1283,7 @@ function sendEvidence(ele)
         dataType: 'json',
         headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
         success: function (r) {
+            $('#modalEvidence').modal('show');
             $('.containerEvidences').html('');
             if(r.data.length!=0)
             {
@@ -929,18 +1309,9 @@ function sendEvidence(ele)
             alert("Algo salio mal, porfavor contactese con el Administrador.");
         }
     });
-    $('#inscription').val($(ele).attr('data-inscription'))
-    $('#type').val($(ele).attr('data-type'))
-    $('#modalEvidenceLabel').html($(ele).attr('data-type')=="court"?
-        'Subir evidencias: <span class="badge bg-danger">CORTADO</span>':
-        'Subir evidencias: <span class="badge bg-success">ACTIVADO</span>'
-    );
-    $('.showCod').html($(ele).parent().parent().parent().find('.cellCode').html()+'-'+$(ele).parent().parent().parent().find('.cellCod').html());
-    $('.showIns').html($(ele).parent().parent().parent().find('.cellIns').html());
-    $('.showCli').html($(ele).parent().parent().parent().find('.cellCli').html());
-    $('.showDir').html($(ele).parent().parent().parent().find('.cellAdr').html());
-    $('#modalEvidence').modal('show');
-    myDropzone.removeAllFiles();
+
+
+
 }
 function deleteEvidence(ele)
 {
@@ -949,6 +1320,28 @@ function deleteEvidence(ele)
         url: "{{ route('deleteEvidence') }}",
         method: 'POST',
         data: {idEvi: $(ele).attr('data-idEvi')},
+        dataType: 'json',
+        headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+        success: function (r) {
+            console.log(r)
+            if(r.state)
+                $(ele).parent().parent().remove();
+            notify(r);
+            $('.overlayPage').css("display","none");
+        },
+        error: function (xhr, status, error) {
+            alert("Algo salio mal, porfavor contactese con el Administrador.");
+            $('.overlayPage').css("display","none");
+        }
+    });
+}
+function deleteEvidenceObs(ele)
+{
+    $('.overlayPage').css("display","flex");
+    jQuery.ajax({
+        url: "{{ route('deleteEvidenceObs') }}",
+        method: 'POST',
+        data: {idOe: $(ele).attr('data-idOe')},
         dataType: 'json',
         headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
         success: function (r) {
@@ -974,29 +1367,28 @@ function buildTable()
     $('.containerRecordsCuts>div').remove();
     $('.containerRecordsCuts').html(tableRecordsCuts);
 }
-function fillRecords2()
+function fillRecords3(idAss)
 {
+    console.log('entro a fillRecords3')
     $('.containerRecordsBlue').css('display','none');
     $('.containerRecordsCuts').css('display','block');
     jQuery.ajax({
-        url: "{{ route('listCut') }}",
+        url: "{{ route('listCut2') }}",
         method: 'POST',
+        data: {idAss: idAss},
         dataType: 'json',
         headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
         success: function (r) {
-            console.log(r)
-            console.log(typeof r.data)
-            console.log(JSON.parse(r.data)[0]["numberInscription"])
-            var sizeInBytes = new Blob([r.data]).size;
-            console.log(`El tamaño del JSON en bytes es: ${sizeInBytes}`);
+            // console.log(typeof r.data)
+            // console.log(JSON.parse(r.data)[0]["numberInscription"])
+            // var sizeInBytes = new Blob([r.data]).size;
+            // console.log(`El tamaño del JSON en bytes es: ${sizeInBytes}`);
             // ---------------------------------------
             // ---------------------------------------
             // ---------------------------------------
             var listString = JSON.stringify(r.data);
             // localStorage.setItem('__LISTCUT__', listString);
             localStorage.setItem('__LISTCUT__', r.data);
-
-
             if(r.state)
             {
                 let htmlCourt = '';
@@ -1012,7 +1404,7 @@ function fillRecords2()
                 let classCut='';
 
                 var data = JSON.parse(r.data);
-                console.log(data)
+                // console.log(data)
                 for (var i = 0; i < data.length; i++)
                 {
                     // console.log(data[i].numberInscription);
@@ -1022,11 +1414,14 @@ function fillRecords2()
                         stillCut = 'rgba(255, 0, 0, 0.5)';
                         classCut = 'red-row';
                         accordingStateCourt = '<label class="fw-bold">cortado</label>' +
-                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+data[i].numberInscription+'" checked>';
+                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
+                        // '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+data[i].numberInscription+'" checked>';
+
                         accordingStatePaid = '';
 
-                        evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+data[i].numberInscription+'">'+
-                            '<i class="fa fa-image"></i></button>';
+                        evidence = "court";
+                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+data[i].numberInscription+'">'+
+                            // '<i class="fa fa-image"></i></button>';
                     }
                     else
                     {
@@ -1034,7 +1429,8 @@ function fillRecords2()
                         stillCut = 'none';
                         classCut = 'none-row';
                         accordingStateCourt = '<label class="fw-bold">sin accion</label>' +
-                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+data[i].numberInscription+'">';
+                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'">';
+                        // '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+data[i].numberInscription+'">';
                     }
                     if(data[i].CtaMesActOld!=data[i].monthDebt && data[i].courtState=='4')
                     {
@@ -1043,16 +1439,17 @@ function fillRecords2()
                             stillCut = 'rgba(255, 0, 0, 0.5)';
                             classCut = 'red-row';
                             accordingStateCourt = '<label class="fw-bold">cortado</label>' +
-                            '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+data[i].numberInscription+'" checked>';
+                            '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
+                            // '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+data[i].numberInscription+'" checked>';
                             accordingStatePaid = '';
 
-                            evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+data[i].numberInscription+'">'+
-                            '<i class="fa fa-image"></i></button>';
+                            // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+data[i].numberInscription+'">'+
+                            // '<i class="fa fa-image"></i></button>';
+
+                            evidence = "court";
                         }
                         else
                         {
-
-
                             if(data[i].CtaMesActOld<=3)
                             {
                                 evidence = '';
@@ -1062,10 +1459,12 @@ function fillRecords2()
                                     classCut = 'green-row';
                                     accordingStateCourt = '';
                                     accordingStatePaid = '<label class="fw-bold">Activado</label>' +
-                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+data[i].numberInscription+'" checked>';
+                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
 
-                                    evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
-                                        '<i class="fa fa-image"></i></button>';
+                                    // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
+                                    //     '<i class="fa fa-image"></i></button>';
+
+                                    evidence = "activate";
                                 }
                                 else
                                 {
@@ -1073,7 +1472,7 @@ function fillRecords2()
                                     classCut = 'blue-row';
                                     accordingStateCourt = '';
                                     accordingStatePaid = '<label class="fw-bold">Activar</label>' +
-                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+data[i].numberInscription+'">';
+                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'">';
                                 }
                             }
                             else
@@ -1089,10 +1488,12 @@ function fillRecords2()
                                         classCut = 'green-row';
                                         accordingStateCourt = '';
                                         accordingStatePaid = '<label class="fw-bold">Activado</label>' +
-                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+data[i].numberInscription+'" checked>';
+                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
 
-                                        evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
-                                            '<i class="fa fa-image"></i></button>';
+                                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
+                                        //     '<i class="fa fa-image"></i></button>';
+
+                                        evidence = "activate";
                                     }
                                     else
                                     {
@@ -1100,7 +1501,7 @@ function fillRecords2()
                                         classCut = 'blue-row';
                                         accordingStateCourt = '';
                                         accordingStatePaid = '<label class="fw-bold">Activar</label>' +
-                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+data[i].numberInscription+'">';
+                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'">';
                                     }
                                 }
                             }
@@ -1113,10 +1514,12 @@ function fillRecords2()
                         classCut = 'green-row';
                         accordingStateCourt = '';
                         accordingStatePaid = '<label class="fw-bold">Activado</label>' +
-                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-inscription="'+data[i].numberInscription+'" checked>';
+                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
 
-                        evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
-                            '<i class="fa fa-image"></i></button>';
+                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
+                        //     '<i class="fa fa-image"></i></button>';
+
+                        evidence = "activate";
                     }
 
                     if(data[i].CtaMesActOld!=data[i].monthDebt && data[i].courtState === null)
@@ -1129,7 +1532,9 @@ function fillRecords2()
                                 stillCut = 'none';
                                 classCut = 'none-row';
                                 accordingStateCourt = '<label class="fw-bold">sin accion</label>' +
-                                '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+data[i].numberInscription+'">';
+                                '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'">';
+                                // '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-inscription="'+data[i].numberInscription+'">';
+
                             }
                             else
                             {
@@ -1152,7 +1557,273 @@ function fillRecords2()
                         }
                     }
 
-                    htmlCourt += '<tr style="background: '+stillCut+';" class="'+classCut+'">' +
+                    htmlCourt += '<tr style="background: '+stillCut+';" class="'+i+'idRowTr '+classCut+'">' +
+                        '<td class="align-middle text-center">' + countRecords + '</td>' +
+                        '<td class="align-middle text-center containerSwitchCourt">' +
+                            '<div class="form-check form-switch">' +
+                                accordingStateCourt +
+                            '</div>' +
+                        '</td>' +
+                        '<td class="align-middle text-center containerSwitchActivate">' +
+                            '<div class="form-check form-switch">' +
+                                accordingStatePaid +
+                            '</div>' +
+                        '</td>' +
+                        '<td class="align-middle text-center cellCode">' + novDato(data[i].code) +' - '+ novDato(data[i].cod) + '</td>' +
+                        // '<td class="align-middle text-center cellCod">' + novDato(data[i].cod) + '</td>' +
+                        '<td class="align-middle text-center cellIns">' + novDato(data[i].numberInscription) + '</td>'+
+                        '<td class="align-middle cellCli">' + novDato(data[i].client) + '</td>'+
+                        '<td class="align-middle cellAdr">' + novDato(data[i].streetDescription) + '</td>'+
+                        '<td class="align-middle text-center">' + novDato(data[i].rate) + '</td>'+
+                        '<td class="align-middle text-center">' + novDato(data[i].meter) + '</td>'+
+                        '<td class="align-middle text-center">' + novDato(data[i].monthDebt) + '</td>'+
+                        '<td class="align-middle text-center">' + novDato(Number(data[i].amount).toFixed(2)) + '</td>'+
+                        '<td class="align-middle text-center">' + novDato(data[i].serviceEnterprise) + '</td>'+
+                        '<td class="align-middle text-center">' + novDato(data[i].consumption) + '</td>'+
+                        '<td class="align-middle text-center">' +
+                            // '<div class="mb-0 conteinerEvidence">' +
+                            //     '<button type="button" class="btn btn-primary '+i+'idRowEvi" onclick="sendEvidence(this)" data-type="'+evidence+'" data-inscription="'+data[i].numberInscription+'" style="display:'+(!isEmpty(evidence)?'inline':'none')+';">'+
+                            //     '<i class="fa fa-image"></i></button>'+
+                            // '</div>' +
+                            '<div class="mb-0 conteinerEvidence">' +
+                                '<button type="button" class="btn btn-primary '+i+'idRowEvi" onclick="sendEvidence(this)" '+
+                                    'data-type="'+evidence+'" '+
+                                    'data-inscription="'+data[i].numberInscription+'" '+
+                                    'data-cellCode="'+ novDato(data[i].code) +' - '+ novDato(data[i].cod) + '" '+
+                                    'data-cellIns="'+ novDato(data[i].numberInscription) + '" '+
+                                    'data-cellCli="'+ novDato(data[i].client) + '" '+
+                                    'data-cellAdr="'+ novDato(data[i].streetDescription) + '" '+
+                                    'style="display:'+(!isEmpty(evidence)?'inline':'none')+';">'+
+                                '<i class="fa fa-image"></i></button>'+
+                            '</div>' +
+                            // '<button type="button" class="btn btn-secondary mt-1" onclick="sendObs(this)" data-type="court" data-inscription="'+data[i].numberInscription+'"><i class="fa fa-comment"></i></button>'+
+                            '<button type="button" class="btn btn-secondary mt-1" onclick="sendObs(this)" data-type="court" data-inscription="'+data[i].numberInscription+'" '+
+                                    'data-cellCode="'+ novDato(data[i].code) +' - '+ novDato(data[i].cod) + '" '+
+                                    'data-cellIns="'+ novDato(data[i].numberInscription) + '" '+
+                                    'data-cellCli="'+ novDato(data[i].client) + '" '+
+                                    'data-cellAdr="'+ novDato(data[i].streetDescription) + '" ><i class="fa fa-comment"></i></button>'+
+                        '</td>' +
+                    '</tr>';
+                    accordingStateCourt='';
+                    accordingStatePaid='';
+                    evidence='';
+
+                    classCut='';
+                    // -----
+                }
+                // console.log(htmlCourt)
+                $('#recordsCourt').html(htmlCourt);
+                // initDatatableDD('tableCuts');
+                tabletest = initDatatableDD('tableCuts');
+                initDatatable('tableRehab');
+
+                // $('.containerSpinner').css('display','none !important');
+            }
+            else
+            {
+                alert(r.message);
+            }
+            $(".containerSpinner").removeClass("d-flex");
+            $(".containerSpinner").addClass("d-none");
+
+            $('.overlayPage').css("display","none");
+
+
+        },
+        error: function (xhr, status, error) {
+            alert("Algo salio mal, porfavor contactese con el Administrador.");
+            $(".containerSpinner").removeClass("d-flex");
+            $(".containerSpinner").addClass("d-none");
+        }
+    });
+}
+function fillRecords2()
+{
+    console.log('entro a fillRecords2');
+    $('.containerRecordsBlue').css('display','none');
+    $('.containerRecordsCuts').css('display','block');
+    jQuery.ajax({
+        url: "{{ route('listCut') }}",
+        method: 'get',
+        dataType: 'json',
+        headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+        success: function (r) {
+            // console.log(typeof r.data)
+            // console.log(JSON.parse(r.data)[0]["numberInscription"])
+            // var sizeInBytes = new Blob([r.data]).size;
+            // console.log(`El tamaño del JSON en bytes es: ${sizeInBytes}`);
+            // ---------------------------------------
+            // ---------------------------------------
+            // ---------------------------------------
+            var listString = JSON.stringify(r.data);
+            // localStorage.setItem('__LISTCUT__', listString);
+            localStorage.setItem('__LISTCUT__', r.data);
+            if(r.state)
+            {
+                let htmlCourt = '';
+                let countRecords = 0;
+                let accordingState = '';
+                let accordingStatePaid = '';
+                let accordingStateCourt = '';
+                let stillCut = '';
+                let optionCourt = '';
+                let letterCourt = '';
+                let evidence = '';
+
+                let classCut='';
+
+                var data = JSON.parse(r.data);
+                // console.log(data)
+                for (var i = 0; i < data.length; i++)
+                {
+                    // console.log(data[i].numberInscription);
+                    countRecords++;
+                    if(data[i].courtState=='4')
+                    {
+                        stillCut = 'rgba(255, 0, 0, 0.5)';
+                        classCut = 'red-row';
+                        accordingStateCourt = '<label class="fw-bold">cortado</label>' +
+                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
+                        accordingStatePaid = '';
+
+                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+data[i].numberInscription+'">'+
+                        //     '<i class="fa fa-image"></i></button>';
+
+                        evidence = "court";
+                    }
+                    else
+                    {
+
+                        stillCut = 'none';
+                        classCut = 'none-row';
+                        accordingStateCourt = '<label class="fw-bold">sin accion</label>' +
+                        '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'">';
+                    }
+                    if(data[i].CtaMesActOld!=data[i].monthDebt && data[i].courtState=='4')
+                    {
+                        if(data[i].CtaMesActOld == 3 && data[i].monthDebt == 2)
+                        {
+                            stillCut = 'rgba(255, 0, 0, 0.5)';
+                            classCut = 'red-row';
+                            accordingStateCourt = '<label class="fw-bold">cortado</label>' +
+                            '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
+                            accordingStatePaid = '';
+
+                            // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="court" data-inscription="'+data[i].numberInscription+'">'+
+                            // '<i class="fa fa-image"></i></button>';
+
+                            evidence = "court";
+                        }
+                        else
+                        {
+
+
+                            if(data[i].CtaMesActOld<=3)
+                            {
+                                evidence = '';
+                                if(data[i].courtState=='1')
+                                {
+                                    stillCut = "rgba(119, 163, 69, 0.5);";
+                                    classCut = 'green-row';
+                                    accordingStateCourt = '';
+                                    accordingStatePaid = '<label class="fw-bold">Activado</label>' +
+                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
+
+                                    // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
+                                    //     '<i class="fa fa-image"></i></button>';
+
+                                    evidence = "activate";
+                                }
+                                else
+                                {
+                                    stillCut = "rgba(0, 0, 255, 0.5);";
+                                    classCut = 'blue-row';
+                                    accordingStateCourt = '';
+                                    accordingStatePaid = '<label class="fw-bold">Activar</label>' +
+                                    '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'">';
+                                }
+                            }
+                            else
+                            {
+                                // console.log('llego aki '+data[i].numberInscription)
+                                // console.log(data[i].monthDebt)
+                                if(data[i].monthDebt == 0 || data[i].monthDebt == 1)
+                                {
+                                    evidence = '';
+                                    if(data[i].courtState=='1')
+                                    {
+                                        stillCut = "rgba(119, 163, 69, 0.5);";
+                                        classCut = 'green-row';
+                                        accordingStateCourt = '';
+                                        accordingStatePaid = '<label class="fw-bold">Activado</label>' +
+                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
+
+                                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
+                                        //     '<i class="fa fa-image"></i></button>';
+
+                                        evidence = "activate";
+                                    }
+                                    else
+                                    {
+                                        stillCut = "rgba(0, 0, 255, 0.5);";
+                                        classCut = 'blue-row';
+                                        accordingStateCourt = '';
+                                        accordingStatePaid = '<label class="fw-bold">Activar</label>' +
+                                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'">';
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                    if(data[i].courtState=='1')
+                    {
+                        stillCut = "rgba(119, 163, 69, 0.5);";
+                        classCut = 'green-row';
+                        accordingStateCourt = '';
+                        accordingStatePaid = '<label class="fw-bold">Activado</label>' +
+                        '<input type="checkbox" class="form-check-input" onclick="activateUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'" checked>';
+
+                        // evidence = '<button type="button" class="btn btn-primary" onclick="sendEvidence(this)" data-type="activate" data-inscription="'+data[i].numberInscription+'">'+
+                        //     '<i class="fa fa-image"></i></button>';
+
+                        evidence = "activate";
+                    }
+
+                    if(data[i].CtaMesActOld!=data[i].monthDebt && data[i].courtState === null)
+                    {
+
+                        if(data[i].CtaMesActOld<=3)
+                        {
+                            if(data[i].CtaMesActOld == 3 && data[i].monthDebt == 2)
+                            {
+                                stillCut = 'none';
+                                classCut = 'none-row';
+                                accordingStateCourt = '<label class="fw-bold">sin accion</label>' +
+                                '<input type="checkbox" class="form-check-input" onclick="courtUser(this)" data-idRow="'+i+'" data-inscription="'+data[i].numberInscription+'">';
+                            }
+                            else
+                            {
+                                stillCut = "rgba(0, 255, 0, 0.5);";
+                                classCut = 'activate-row';
+                                accordingStateCourt = '';
+                                accordingStatePaid = '';
+                                console.log('State === nul --- ActOld<=3---'+data[i].numberInscription)
+                            }
+                        }
+                        else
+                        {
+                            if(data[i].monthDebt == 0)
+                            {
+                                stillCut = "rgba(0, 255, 0, 0.5);";
+                                classCut = 'activate-row';
+                                accordingStateCourt = '';
+                                accordingStatePaid = '';
+                            }
+                        }
+                    }
+
+                    htmlCourt += '<tr style="background: '+stillCut+';" class="'+i+'idRowTr '+classCut+'">' +
                         '<td class="align-middle text-center">' + countRecords + '</td>' +
                         '<td class="align-middle text-center containerSwitchCourt">' +
                             '<div class="form-check form-switch">' +
@@ -1177,9 +1848,22 @@ function fillRecords2()
                         '<td class="align-middle text-center">' + novDato(data[i].consumption) + '</td>'+
                         '<td class="align-middle text-center">' +
                             '<div class="mb-0 conteinerEvidence">' +
-                                evidence +
+                                '<button type="button" class="btn btn-primary '+i+'idRowEvi" onclick="sendEvidence(this)" '+
+                                    'data-type="'+evidence+'" '+
+                                    'data-inscription="'+data[i].numberInscription+'" '+
+                                    'data-cellCode="'+ novDato(data[i].code) +' - '+ novDato(data[i].cod) + '" '+
+                                    'data-cellIns="'+ novDato(data[i].numberInscription) + '" '+
+                                    'data-cellCli="'+ novDato(data[i].client) + '" '+
+                                    'data-cellAdr="'+ novDato(data[i].streetDescription) + '" '+
+                                    'style="display:'+(!isEmpty(evidence)?'inline':'none')+';">'+
+                                '<i class="fa fa-image"></i></button>'+
                             '</div>' +
-                            '<button type="button" class="btn btn-secondary mt-1" onclick="sendObs(this)" data-type="court" data-inscription="'+data[i].numberInscription+'"><i class="fa fa-comment"></i></button>'+
+                            '<button type="button" class="btn btn-secondary mt-1" onclick="sendObs(this)" '+
+                                    'data-inscription="'+data[i].numberInscription+'" '+
+                                    'data-cellCode="'+ novDato(data[i].code) +' - '+ novDato(data[i].cod) + '" '+
+                                    'data-cellIns="'+ novDato(data[i].numberInscription) + '" '+
+                                    'data-cellCli="'+ novDato(data[i].client) + '" '+
+                                    'data-cellAdr="'+ novDato(data[i].streetDescription) + '" ><i class="fa fa-comment"></i></button>'+
                         '</td>' +
                     '</tr>';
                     accordingStateCourt='';
@@ -1191,7 +1875,7 @@ function fillRecords2()
                 }
                 // console.log(htmlCourt)
                 $('#recordsCourt').html(htmlCourt);
-                initDatatableDD('tableCuts');
+                tabletest = initDatatableDD('tableCuts');
                 initDatatable('tableRehab');
 
                 // $('.containerSpinner').css('display','none !important');
@@ -1214,30 +1898,58 @@ function fillRecords2()
         }
     });
 }
-function saveObs()
-{
-    jQuery.ajax({
-        url: "{{ route('saveObs') }}",
-        method: 'POST',
-        data: {inscription: $('.oshowIns').html(),comment: $('#obs').val()},
-        dataType: 'json',
-        headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-        success: function (r) {
-            console.log(r)
-        },
-        error: function (xhr, status, error) {
-            $('.overlayPage').css("display","none");
-            // alert("Algo salio mal, porfavor contactese con el Administrador.");
-        }
-    });
-}
+// function saveObs()
+// {
+    // jQuery.ajax({
+    //     url: "{{ route('saveObs') }}",
+    //     method: 'POST',
+    //     data: {inscription: $('.oshowIns').html(),comment: $('#obs').val()},
+    //     dataType: 'json',
+    //     headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+    //     success: function (r) {
+    //         console.log(r)
+    //         $('#idObs').val(r.obs.idObs)
+    //         alert('aka-'+r.obs.idObs)
+    //     },
+    //     error: function (xhr, status, error) {
+    //         $('.overlayPage').css("display","none");
+    //         alert("Algo salio mal, porfavor contactese con el Administrador.");
+    //     }
+    // });
+// }
 function sendObs(ele)
 {
+    $('#idObs').val('');
+    myDropzoneObs.removeAllFiles()
     $('#modalObs').modal('show');
-    $('.oshowCod').html($(ele).parent().parent().find('.cellCode').html());
-    $('.oshowIns').html($(ele).parent().parent().find('.cellIns').html());
-    $('.oshowCli').html($(ele).parent().parent().find('.cellCli').html());
-    $('.oshowDir').html($(ele).parent().parent().find('.cellAdr').html());
+    $('#oinscription').val($(ele).attr('data-inscription'));
+// ---------------------------
+    $('.oshowCod').html($(ele).attr('data-cellCode'));
+    $('.oshowIns').html($(ele).attr('data-cellIns'));
+    $('.oshowCli').html($(ele).attr('data-cellCli'));
+    $('.oshowDir').html($(ele).attr('data-cellAdr'));
+    $('#obs').val('');
+    // jQuery.ajax({
+    //     url: "{{ route('showObs') }}",
+    //     method: 'POST',
+    //     data: {inscription: $(ele).attr('data-inscription')},
+    //     dataType: 'json',
+    //     headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+    //     success: function (r) {
+    //         console.log(r)
+    //         if(r.obs !== null)
+    //         {
+    //             $('#obs').val(r.obs.comment)
+    //             $('#idObs').val(r.obs.idObs)
+    //         }
+
+    //     },
+    //     error: function (xhr, status, error) {
+    //         $('.overlayPage').css("display","none");
+    //         alert("Algo salio mal, porfavor contactese con el Administrador.");
+    //     }
+    // });
+// ---------------------------
     jQuery.ajax({
         url: "{{ route('showObs') }}",
         method: 'POST',
@@ -1245,11 +1957,31 @@ function sendObs(ele)
         dataType: 'json',
         headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
         success: function (r) {
-            console.log(r)
-            if(r.obs !== null)
+            $('.containerImagesObs').html('');
+            if(r.obs!==null)
             {
                 $('#obs').val(r.obs.comment)
+                $('#idObs').val(r.obs.idObs)
+                if(r.list!==null)
+                {
+                    let html = '';
+                    for (var i = 0; i < r.list.length; i++)
+                    {
+                        html += '<div class="card col-lg-4 p-0">'+
+                                '<img src="{{env('IMAGES_BASE_URL')}}'+r.list[i].path+'" class="card-img-top">'+
+                                '<div class="card-body p-1">'+
+                                    '<p class="card-text text-center fw-bold mb-1">'+formatDate(r.list[i].date)+' | '+r.list[i].hour+'</p>'+
+                                    '<a href="#" class="btn btn-danger w-100 py-1" onclick="deleteEvidenceObs(this)" data-idOe="'+r.list[i].idOe+'"><i class="fa fa-trash"></i> Eliminar</a>'+
+                                '</div>'+
+                            '</div>';
+                    }
+                    $('.containerImagesObs').append(html);
+                }
             }
+
+            else
+                $('.messageEvidences').css('display','block');
+            $('.overlayPage').css("display","none");
         },
         error: function (xhr, status, error) {
             $('.overlayPage').css("display","none");
@@ -1506,6 +2238,30 @@ function fillRecords()
         }
     });
 }
+</script>
+<script>
+
+tabletest.on('responsive-display', function(e, datatable, row, showHide, update) {
+        if (showHide) {
+            // La fila se acaba de expandir
+            console.log('Fila expandida');
+
+            // Puedes acceder a los datos de la fila expandida
+            var data = row.data();
+
+            // Por ejemplo, cambiamos el valor de la columna 'cliente' (index 5)
+            data[5] = 'Nuevo Cliente'; // Cambia el valor por lo que necesites
+
+            // Actualizamos los datos de la fila
+            row.data(data).draw();
+        } else {
+            // La fila se acaba de contraer
+            console.log('Fila contraída');
+        }
+    });
+    $('#tableCuts').on( 'draw.dt', function () {
+        alert( 'Table redrawn' );
+    } );
 </script>
 {{-- <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/responsive/3.0.2/js/dataTables.responsive.js"></script>

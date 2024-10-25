@@ -76,6 +76,7 @@
 </div>
 
 <script>
+localStorage.setItem('nba',3)
 $(document).ready( function ()
 {
     $('.overlayPage').css("display","none");

@@ -22,6 +22,8 @@
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/js/tempusdominus-bootstrap-4.min.js"></script>
 {{-- ------------------- --}}
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+<script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
 {{-- ----------- --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>EMUSAP</title>
@@ -44,5 +46,8 @@
 <script src="{{asset('escn/public/plugins/validate/jquery.validate.min.js')}}"></script>
 <!-- transJQV -->
 <script src="{{asset('escn/public/plugins/validate/translateValidate.js')}}"></script>
+<script>
+    navBarActive()
+</script>
   </body>
 </html>

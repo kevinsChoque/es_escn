@@ -1,6 +1,35 @@
+function navBarActive()
+{
+    // console.log('este es sba---> '+localStorage.getItem("sba"));
+    // if(localStorage.getItem("sba")==5)
+    // {
+    //     console.log('entro');
+    //     $('.sba5').addClass('active');
+    // }
+    if(localStorage.getItem("nba")==1)$('.nb1').addClass('bg-info');
+    if(localStorage.getItem("nba")==2)$('.nb2').addClass('bg-info');
+    if(localStorage.getItem("nba")==3)$('.nb3').addClass('bg-info');
+}
 $('.onlyNumbers').on('input', function () {
     this.value = this.value.replace(/[^0-9]/g,'');
 });
+function isEmpty(value) {
+    // Verifica si es null o undefined
+    if (value === null || value === undefined) return true;
+
+    // Verifica si es una cadena vacía
+    if (typeof value === 'string' && value.trim() === '') return true;
+
+    // Verifica si es un array vacío
+    if (Array.isArray(value) && value.length === 0) return true;
+
+    // Verifica si es un objeto vacío
+    if (typeof value === 'object' && Object.keys(value).length === 0) return true;
+
+    // Si no está vacío, retorna false
+    return false;
+}
+function isMobileDevice() {return /Mobi|Android/i.test(navigator.userAgent);}
 function novDato(dato){return dato!==null && dato!==''?dato:'--';}
 function initDatatable(idTable)
 {
@@ -32,7 +61,7 @@ function initDatatable(idTable)
 }
 function initDatatableDD(idTable)
 {
-    $('#'+idTable).DataTable( {
+    var table = $('#'+idTable).DataTable( {
         "responsive": true,
         "autoWidth":false,
         "lengthMenu": [[5, 10,25, -1], [5, 10,25, "Todos"]],
@@ -56,6 +85,8 @@ function initDatatableDD(idTable)
     $('input[type=search]').css('width','100%');
     $('input[type=search]').css('margin','0');
     $('input[type=search]').prop('placeholder','Escriba para buscar en las columnas.');
+console.log('enviara la table')
+    return table;
 }
 function formatDate(fecha)
 {
@@ -104,4 +135,20 @@ function initFv(id,rules)
             $(element).addClass('is-valid');
         }
     });
+}
+function isEmpty(value) {
+    // Verifica si es null o undefined
+    if (value === null || value === undefined) return true;
+
+    // Verifica si es una cadena vacía
+    if (typeof value === 'string' && value.trim() === '') return true;
+
+    // Verifica si es un array vacío
+    if (Array.isArray(value) && value.length === 0) return true;
+
+    // Verifica si es un objeto vacío
+    if (typeof value === 'object' && Object.keys(value).length === 0) return true;
+
+    // Si no está vacío, retorna false
+    return false;
 }

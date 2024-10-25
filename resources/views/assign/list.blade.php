@@ -1,5 +1,6 @@
 @extends('layout.layout')
 @section('content')
+
 <div class="container-fluid mt-1">
     <div class="card shadow bg-light">
         <div class="card-header">
@@ -13,15 +14,18 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-lg-12">
+                <div class="col-lg-12 table-responsive">
                     <table id="tableCuts" class="w-100 table table-hover table-striped table-bordered">
                         <thead>
                             <tr class="text-center">
-                                <th width="3%" class="text-center" data-priority="2">DNI</th>
-                                <th width="6%" class="text-center" data-priority="2">TECNICO</th>
-                                <th width="6%" class="text-center" data-priority="2">MES</th>
-                                <th width="6%" class="text-center" data-priority="3">ETIQUETA</th>
-                                <th width="6%" class="text-center" data-priority="1">OPCIONES</th>
+                                <th class="text-center" data-priority="1">DNI</th>
+                                <th class="text-center" data-priority="2">TECNICO</th>
+                                <th class="text-center" data-priority="2">MES</th>
+                                <th class="text-center" data-priority="2">RUTAS</th>
+                                <th class="text-center" data-priority="2">DEUDA EN MESES</th>
+                                <th class="text-center" data-priority="3">ETIQUETA</th>
+                                <th class="text-center" data-priority="3">CANT.</th>
+                                <th class="text-center" data-priority="1">OPCIONES</th>
                             </tr>
                         </thead>
                         <tbody id="recordsAssign">
@@ -33,12 +37,13 @@
         </div>
     </div>
 </div>
-
 <script>
+    localStorage.setItem('nba',2)
 $(document).ready( function ()
 {
     $('.overlayPage').css("display","none");
     fillRecords();
+    // ---
 });
 // $('.deleteRecords').on('click',function(){
 //     alert('aki')
@@ -62,16 +67,21 @@ function deleteRecords(idAss)
             jQuery.ajax({
                 url: "{{ route('deleteAssign') }}",
                 method: 'POST',
-                data: {state: $(ele).is(':checked'),inscription: $(ele).attr('data-inscription')},
+                data: {idAss: idAss},
                 dataType: 'json',
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 success: function (r) {
                     console.log(r)
                     Swal.fire({
                         title: r.message,
-                        text: r.state?"La informacion fue eliminada":'',
+                        text: r.state?"La asignacion fue eliminada":'',
                         icon: r.state? "success" : "error",
                     });
+                    if(r.state)
+                    {
+                        $('#recordsAssign').html('');
+                        fillRecords()
+                    }
                     $(".containerSpinner").removeClass("d-flex");
                     $(".containerSpinner").addClass("d-none");
                 },
@@ -89,39 +99,41 @@ function deleteRecords(idAss)
 }
 function fillRecords()
 {
-    $(".containerSpinner").removeClass("d-none");
-    $(".containerSpinner").addClass("d-flex");
+    $(".containerSpinner").removeClass("d-none").addClass("d-flex");
     jQuery.ajax({
         url: "{{ route('listAssign') }}",
         method: 'get',
         success: function (r) {
-            console.log(r)
-
             if(r.state)
             {
                 $('#recordsAssign').html('');
                 let html = '';
+                let month='';
                 for (var i = 0; i < r.data.length; i++)
                 {
+                    month = r.data[i].monthDebt==2?'2':'>=3';
                     html += '<tr>' +
                         '<td class="align-middle text-center">' + novDato(r.data[i].dni) + '</td>' +
                         '<td class="align-middle text-center">' + novDato(r.data[i].name) + '</td>' +
                         '<td class="align-middle text-center">' + novDato(r.data[i].month) + '</td>' +
+                        '<td class="align-middle text-center">' + novDato(r.data[i].routes) + '</td>' +
+                        '<td class="align-middle text-center">' + novDato(month) + '</td>' +
                         '<td class="align-middle text-center">' + novDato(r.data[i].flat) + '</td>'+
+                        '<td class="align-middle text-center"><i class="fa fa-list"></i> ' + novDato(r.data[i].cant) + '</td>'+
                         '<td class="align-middle text-center">' +
-                            '<button class="btn btn-danger" onclick="deleteRecords('+r.data[i].idAss+')"><i class="fa fa-trash"></i> Eliminar</button>'
+                            '<button class="btn btn-danger btn-delete" onclick="deleteRecords('+r.data[i].idAss+')"><i class="fa fa-trash"></i></button>'
                         '</td>' +
                     '</tr>';
                 }
                 $('#recordsAssign').html(html);
+                tippy('.btn-delete', {
+                    content: 'Eliminar asignacion',
+                    placement: 'top'
+                });
             }
-            // else
-            // {
-            //     alert(r.message);
-            // }
-            $(".containerSpinner").removeClass("d-flex");
-            $(".containerSpinner").addClass("d-none");
-
+            else
+                alert(r.message);
+            $(".containerSpinner").removeClass("d-flex").addClass("d-none");
             // $('.overlayPage').css("display","none");
         },
         error: function (xhr, status, error) {

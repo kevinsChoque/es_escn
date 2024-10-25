@@ -104,6 +104,7 @@
                                     <optgroup label="Sector 4">
                                         <option value="43">43</option>
                                         <option value="44">44</option>
+                                        <option value="45">45</option>
                                         <option value="46">46</option>
                                         <option value="47">47</option>
                                         <option value="48">48</option>
@@ -149,6 +150,7 @@
                                     <option value="1">1</option>
                                     <option value="2" selected>2</option>
                                     <option value="3">Mayor o igual a 3</option>
+                                    <option value="18">Mayor o igual a 18</option>
                                 </select>
                             </div>
                         </div>
@@ -322,7 +324,7 @@
 <script>
 var tableRecords;
 var amountRecordsFilter;
-
+localStorage.setItem("nba",1);
 $(document).ready( function ()
 {
     tableRecords = $('.containerRecords').html();
@@ -510,8 +512,9 @@ $('.assignProgram').on('click',function(){
                         text: r.state?"La informacion fue registrada":'',
                         icon: r.state? "success" : "error",
                     });
-                    $('#tecnical').find('option[value="' + $('#tecnical').val() + '"]').remove();
-                    $('#tecnical').trigger('change.select2');
+                    // $('#tecnical').find('option[value="' + $('#tecnical').val() + '"]').remove();
+                    // $('#tecnical').trigger('change.select2');
+                    $('.changeSearchRecords').click();
                     $('#tecnical').val('0').trigger('change');
                 }
                 else

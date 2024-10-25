@@ -10,6 +10,7 @@ use App\Http\Controllers\EndingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AssignController;
 use App\Http\Controllers\ObsController;
+use App\Http\Controllers\TaskController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -39,12 +40,14 @@ Route::post('tecnical/showBlue',[TecnicalController::class, 'actShowBlue'])->nam
 
 // --------------------------------------------------------------------test
 
-Route::post('tecnical/listCut',[TecnicalController::class, 'actListCut'])->name('listCut');
+Route::get('tecnical/listCut',[TecnicalController::class, 'actListCut'])->name('listCut');
+Route::post('tecnical/listCut2',[TecnicalController::class, 'actListCut2'])->name('listCut2');
 // evidence
 
 Route::post('evidence/sendEvidence',[EvidenceController::class, 'actSendEvidence'])->name('sendEvidence');
 Route::post('evidence/showEvidences',[EvidenceController::class, 'actShowEvidences'])->name('showEvidences');
 Route::post('evidence/deleteEvidence',[EvidenceController::class, 'actDeleteEvidence'])->name('deleteEvidence');
+
 // fecha de finalizacion de los cortes y rehabilitacion
 
 Route::post('ending/searchEnding',[EndingController::class, 'actSearchEnding'])->name('searchEnding');
@@ -62,11 +65,13 @@ Route::post('assign/deleteAssign',[AssignController::class, 'actDeleteAssign'])-
 
 Route::post('obs/showObs',[ObsController::class, 'actShowObs'])->name('showObs');
 Route::post('obs/saveObs',[ObsController::class, 'actSaveObs'])->name('saveObs');
-
-
-
-
-
+Route::post('obs/sendImgObs',[ObsController::class, 'actSendImgObs'])->name('sendImgObs');
+Route::post('obs/deleteEvidenceObs',[ObsController::class, 'actDeleteEvidenceObs'])->name('deleteEvidenceObs');
+Route::post('obs/showObsevi',[ObsController::class, 'actShowObsevi'])->name('showObsevi');
+// task
+Route::post('task/fillTask',[TaskController::class, 'actFillTask'])->name('fillTask');
+// esta ruta solo es para recuperar la data eliminada
+Route::get('/recovery',[TecnicalController::class, 'actRecoveryData']);
 
 
 

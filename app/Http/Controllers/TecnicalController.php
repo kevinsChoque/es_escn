@@ -27,13 +27,14 @@ class TecnicalController extends Controller
         'Junio' => '01-06-2024',
         'Julio' => '01-07-2024',
         'Agosto' => '01-08-2024',
-        'Septiembre' => '01-09-2024',
+        'Setiembre' => '01-09-2024',
         'Octubre' => '01-10-2024',
         'Noviembre' => '01-11-2024',
         'Diciembre' => '01-12-2024',
     ];
     public function actList()
     {
+
         // $list = TTecnical::all();
         $activePeriod = TEnding::where('state','1')->first();
         // dd($activePeriod);
@@ -47,13 +48,13 @@ class TecnicalController extends Controller
                 AND e.idEnd = ".$activePeriod->idEnd."
                 AND e.state = 1
             )";
-            // dd($sql);
-        $list=DB::select($sql);
-
+        // $list=DB::select($sql);
+        $list = TTecnical::all();
         return response()->json(['state' => true, 'data' => $list]);
     }
     public function actAssign(Request $r)
     {
+        // dd($r->all(),Session::get('nameMonth'),Session::get('lastFilter'));
         try{
             // dd($r->all(),'cascsa', TEnding::where('state',1)->orderBy('idEnd', 'desc')->first());
             // dd(Session::get('listCuts'));
@@ -82,18 +83,26 @@ class TecnicalController extends Controller
             // $sizeInMegabytes = $sizeInBytes / (1024 * 1024);
             // dd(gettype($json_data),$sizeInMegabytes,$json_data);
             $flat = $r->idTec.'_'.strtolower(Session::get('nameMonth')).'_'.Carbon::now()->year;
+            $filter = Session::get('lastFilter');
             $r->merge(['idEnd' => TEnding::where('state',1)->orderBy('idEnd', 'desc')->first()->idEnd]);
             $r->merge(['month' => strtolower(Session::get('nameMonth'))]);
             $r->merge(['flat' => $flat]);
-            $r->merge(['filter' => Session::get('lastFilter')]);
+            $r->merge(['filter' => $filter]);
+            $r->merge(['routes' => Session::get('routes')]);
+            $r->merge(['monthDebt' => Session::get('monthDebt')]);
+            $r->merge(['dr' => Carbon::now()]);
             // $r->merge(['listCutsOld' => json_encode($listCutsOld, JSON_PRETTY_PRINT)]);
-            $ass=TAssign::create($r->all());
-            if($ass)
+            // $ass=TAssign::create($r->all());
+
+            $idAss = TAssign::insertGetId($r->all());
+
+            if($idAss)
             {
                 // dd($ass);
                 $conSql = $this->connectionSql();
                 if($conSql)
                 {
+                    $flat = $idAss.'_'.$flat;
                     $script = "UPDATE INSCRIPC
                         SET CourtEscn = '".$flat."', CtaMesActOldEscn=CtaMesAct
                         FROM INSCRIPC i
@@ -103,14 +112,15 @@ class TecnicalController extends Controller
 
                     if($stmt)
                     {
-                        $filter = str_replace("and i.CourtEscn is null", " ", $ass->filter);
+                        $filter = str_replace("and i.CourtEscn is null", " ", $filter);
                         $script = "select i.CtaMesActOldEscn as CtaMesActOld,i.StateUserEscn as courtState,t.FacEstado as paid, c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
                         rz.CalTip + ' ' + rz.CalDes as streetDescription,i.Tarifx as rate, T.FMedidor as meter,i.CtaMesAct as monthDebt, i.CtaFacSal as amount, c.CodTipSer as serviceEnterprise, t.FConsumo as consumption
                             from TOTFAC t INNER JOIN CONEXION c ON t.InscriNrx=c.InscriNro
                             left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
                             left outer join rzcalle rz ON rz.calcod = c.precalle
-                            ".$filter." and i.CourtEscn='".$ass->flat."' order by c.PreMzn, c.PreLote";
-                        $scriptCant = "select count(*) as cant from INSCRIPC where CourtEscn='".$ass->flat."'";
+                            ".$filter." and i.CourtEscn='".$flat."' order by c.PreMzn, c.PreLote";
+
+                        $scriptCant = "select count(*) as cant from INSCRIPC where CourtEscn='".$flat."'";
                         // dd($script);
                         $stmt = sqlsrv_query($conSql, $script);
                         $stmtCant = sqlsrv_query($conSql, $scriptCant);
@@ -139,9 +149,11 @@ class TecnicalController extends Controller
                                 "consumption" => $data[$i]['consumption'],
                             ];
                         }
-                        $ass=TAssign::where('idTec',$ass->idTec)->where('idEnd',$ass->idEnd)->first();
+                        // $ass=TAssign::where('idTec',$ass->idTec)->where('idEnd',$ass->idEnd)->first();
+                        $ass = TAssign::find($idAss);
                         // dd($ass);
                         $ass->listCutsOld = json_encode($listCutsOld, JSON_PRETTY_PRINT);
+                        $ass->flat = $flat;
                         $ass->cant = $rowCant['cant'];
                         $ass->save();
                         // realizar la consulta
@@ -300,7 +312,7 @@ class TecnicalController extends Controller
                     $script = "INSERT INTO [dbo].[CARGOS]([OfiCod],[OfiAgeCod],[CargoNro],[CargoFecha],[InscriNro],[CargoEstad],[CargoMonto],[DigCod],[FacConCod],[CargoDoc],[FlagId])
                     VALUES (1,1,'$id',GETDATE(),'$r->inscription','I',26.69,50,805,'escn: corte de servicio de agua',1)";
                     $stmt = sqlsrv_query($conSql, $script);
-
+// dd($script);
                     $scriptDocum = "update docum set UltNro=".$id." where DocTip='CARGO'";
                     $stmtDocum = sqlsrv_query($conSql, $scriptDocum);
                     // dd($script);
@@ -652,14 +664,23 @@ class TecnicalController extends Controller
         // dd($listCut->listCutsOld);
         return response()->json(['state' => true, 'data' => $listCut->listCutsOld]);
     }
+    public function actListCut2(Request $r)
+    {
+        // quiero sacar el assign de la variable de sesion q ya existe con su id quiero sacarlo
+        // dd(Session::get('assign')->idAss);
+        $listCut = TAssign::find($r->idAss);
+        session(['assign' => $listCut]);
+        // dd($listCut->listCutsOld);
+        return response()->json(['state' => true, 'data' => $listCut->listCutsOld]);
+    }
     public function actUpdateRecords(Request $r)
     {
         // dd($r->all());
         $ass = TAssign::find(Session::get('assign')->idAss);
         $ass->listCutsOld = $r->data;
         if($ass->save())
-            return response()->json(['state' => true]);
-        return response()->json(['state' => false]);
+            return response()->json(['state' => true, 'message' => "Se actualizo la informacion local."]);
+        return response()->json(['state' => false, 'message' => "Error"]);
 
     }
     public function actShowBlue(Request $r)
@@ -673,7 +694,7 @@ class TecnicalController extends Controller
             from TOTFAC t INNER JOIN CONEXION c ON t.InscriNrx=c.InscriNro
             left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
             left outer join rzcalle rz ON rz.calcod = c.precalle
-            ".$filter." and i.CourtEscn='".Session::get('assign')->flat."' and i.CtaMesAct=0 and i.StateUserEscn=4 order by c.PreMzn, c.PreLote";
+            ".$filter." and i.CourtEscn='".Session::get('assign')->flat."' and i.CtaMesAct in (0,1) and i.StateUserEscn=4 order by c.PreMzn, c.PreLote";
 
         // dd( $script);
         $conSql = $this->connectionSql();
@@ -682,5 +703,54 @@ class TecnicalController extends Controller
         while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) )
         {   $data[] = $row;}
         return response()->json(['state' => true, 'data' => $data]);
+    }
+    public function actRecoveryData()
+    {
+        // debes cambiar los datos para que sea dinamico
+        $conSql = $this->connectionSql();
+        $script = "select i.CtaMesActOldEscn as CtaMesActOld,i.StateUserEscn as courtState,t.FacEstado as paid, c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
+        rz.CalTip + ' ' + rz.CalDes as streetDescription,i.Tarifx as rate, T.FMedidor as meter,i.CtaMesAct as monthDebt, i.CtaFacSal as amount, c.CodTipSer as serviceEnterprise, t.FConsumo as consumption
+            from TOTFAC t INNER JOIN CONEXION c ON t.InscriNrx=c.InscriNro
+            left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
+            left outer join rzcalle rz ON rz.calcod = c.precalle
+            where i.CourtEscn='4_agosto_2024'";
+
+        $script = "select i.CtaMesActOldEscn as CtaMesActOld,i.StateUserEscn as courtState,t.FacEstado as paid, c.PreMzn as code, c.PreLote as cod,t.InscriNrx as numberInscription, c.Clinomx as client,rz.CalTip as streetType,
+        rz.CalTip + ' ' + rz.CalDes as streetDescription,i.Tarifx as rate, T.FMedidor as meter,i.CtaMesAct as monthDebt, i.CtaFacSal as amount, c.CodTipSer as serviceEnterprise, t.FConsumo as consumption
+            from TOTFAC t INNER JOIN CONEXION c ON t.InscriNrx=c.InscriNro
+            left outer join INSCRIPC i ON i.InscriNro=c.InscriNro
+            left outer join rzcalle rz ON rz.calcod = c.precalle
+            where i.CourtEscn='4_agosto_2024' and t.FacFecFac='01-08-2024' and t.InscriNrx is not null and c.PreMzn in (64,65,66,67,68,69,76)  and c.CodTipSer in (1,2,3) ";
+
+        $stmt = sqlsrv_query($conSql, $script);
+
+        $data = array();
+        while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) )
+        {   $data[] = $row;}
+        $listCutsOld = [];
+        for ($i = 0; $i < count($data); $i++) {
+            $listCutsOld[] = [
+                "CtaMesActOld" => $data[$i]['CtaMesActOld'],
+                "courtState" => $data[$i]['courtState'],
+                "paid" => $data[$i]['paid'],
+                "code" => $data[$i]['code'],
+                "cod" => $data[$i]['cod'],
+                "numberInscription" => $data[$i]['numberInscription'],
+                "client" => trim($data[$i]['client']),
+                "streetType" => $data[$i]['streetType'],
+                "streetDescription" => trim($data[$i]['streetDescription']),
+                "rate" => trim($data[$i]['rate']),
+                "meter" => $data[$i]['meter'],
+                "monthDebt" => $data[$i]['monthDebt'],
+                "amount" => $data[$i]['amount'],
+                "serviceEnterprise" => $data[$i]['serviceEnterprise'],
+                "consumption" => $data[$i]['consumption'],
+            ];
+        }
+        // dd($listCutsOld);
+        $ass = TAssign::find("142");
+        $ass->listCutsOld = json_encode($listCutsOld, JSON_PRETTY_PRINT);
+        $ass->save();
+        dd('echo');
     }
 }

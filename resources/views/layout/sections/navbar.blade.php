@@ -6,17 +6,17 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item nb3"><a class="nav-link" href="{{route('home')}}">Padron</a></li>
+              <li class="nav-item nb1"><a class="nav-link" href="{{route('home')}}">Padron</a></li>
               @if(Session::has('tecnical') && Session::get('tecnical')->type=="admin")
-              <li class="nav-item nb1"><a class="nav-link" aria-current="page" href="{{route('showAssignTecnical')}}">Asignaciones</a></li>
+              <li class="nav-item nb2"><a class="nav-link" aria-current="page" href="{{route('showAssignTecnical')}}">Asignaciones</a></li>
               {{-- <li class="nav-item nb2"><a class="nav-link" href="{{route('showReport')}}">Asignaciones</a></li> --}}
-              <li class="nav-item nb2"><a class="nav-link" href="{{route('showReport')}}">Reportes</a></li>
+              <li class="nav-item nb3"><a class="nav-link" href="{{route('showReport')}}">Reportes</a></li>
               @endif
             </ul>
           <div class="d-flex">
 
             @if(Session::has('tecnical'))
-            <h3 class="m-auto fw-bold">{{Session::get('tecnical')->dni}} | {{Session::get('tecnical')->name}}</h3>
+            <h6 class="m-auto fw-bold">{{Session::get('tecnical')->dni}} | {{Session::get('tecnical')->name}}</h6>
             @endif
 
             <button class="btn btn-outline-success ms-2 logout">Cerrar sesion</button>
@@ -31,7 +31,7 @@
 </nav>
 <script>
 $(document).ready( function () {
-  sideBarActive();
+//   sideBarActive();
 } );
 
 function sideBarActive()
