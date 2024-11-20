@@ -152,3 +152,11 @@ function isEmpty(value) {
     // Si no está vacío, retorna false
     return false;
 }
+// function msgImportantShow(a,b,c)
+// {
+//     Swal.fire({
+//         title: a,
+//         text: b,
+//         icon: c,
+//     });
+// }

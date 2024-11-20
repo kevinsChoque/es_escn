@@ -10,6 +10,8 @@
 
         <title>EMUSAP</title>
         <link rel="stylesheet" href="{{asset('escn/public/css/spinnerPage.css')}}">
+        <script src="{{asset('escn/public/plugins/sweetalert2/sweetalert2.11.js')}}"></script>
+        {{-- <script src="{{asset('escn/public/js/helper.js')}}"></script> --}}
     </head>
     <body style="background-image: linear-gradient(to right, rgb(49 76 181), rgb(3 97 18));">
         <div class="overlayPage">
@@ -73,6 +75,7 @@
                         $('.overlayPage').css("display","none");
                         $('.sig-in').prop('disabled',false);
                         // msjRee(r);
+                        notifyGlobal(r)
                     }
                 },
                 error: function (xhr, status, error) {

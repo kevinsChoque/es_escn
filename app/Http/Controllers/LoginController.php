@@ -34,10 +34,13 @@ class LoginController extends Controller
             return response()->json(['estado' => true, 'message' => 'ok']);
         }
         else
-            return response()->json(['estado' => false, 'message' => 'Ocurrio un error en el ingreso']);
+            return response()->json(['estado' => false, 'message' => 'Ingrese un usuario valido']);
     }
     public function actLogout(Request $r)
     {
+//         $sessionData = Session::all();
+// dd($sessionData);
+        // dd('aki');
     	session()->flush();
         return redirect('/');
     	// return redirect('login/login');
