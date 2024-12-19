@@ -21,6 +21,65 @@
                 </div>
             </div>
         </div>
+{{-- ------------------------------- --}}
+        <form id="photoForm" enctype="multipart/form-data">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+            <button type="button" id="takePhoto" class="btn btn-primary">Tomar Foto</button>
+            <p id="errorMsg" style="display:none; color:red; margin-top:10px;">Este dispositivo no es compatible con la cámara.</p>
+            <img id="preview" style="display:none; max-width:100%; margin-top:10px;" />
+        </form>
+
+        <!-- Incluye el token CSRF de Laravel -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+<script>
+$(document).ready(function () {
+    // Detectar si el dispositivo es móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    $('#takePhoto').on('click', function () {
+        if (isMobile) {
+            // Si es un móvil, abrir la cámara
+            $('#cameraInput').click();
+        } else {
+            // Mostrar un mensaje de error si no es un móvil
+            $('#errorMsg').show().text('Este dispositivo no es compatible con la cámara.');
+        }
+    });
+
+    // Mostrar la foto seleccionada
+    $('#cameraInput').on('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const preview = $('#preview');
+            preview.attr('src', URL.createObjectURL(file)).show(); // Mostrar la foto
+            $('#errorMsg').hide(); // Ocultar mensaje de error si estaba visible
+
+            // Opcional: enviar automáticamente la foto al servidor
+            const formData = new FormData();
+            formData.append('photo', file);
+
+            // $.ajax({
+            //     url: '/upload-photo', // Ruta al controlador Laravel
+            //     method: 'POST',
+            //     data: formData,
+            //     processData: false,
+            //     contentType: false,
+            //     headers: {
+            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Token CSRF
+            //     },
+            //     success: function (response) {
+            //         alert(response.message);
+            //     },
+            //     error: function (xhr) {
+            //         alert('Error al subir la foto: ' + xhr.responseJSON.message);
+            //     }
+            // });
+        }
+    });
+});
+
+</script>
+{{-- ------------------------------- --}}
         <div class="container-fluid">
             <div class="row" style="height: 100vh;">
                 <div class="col-md-6 m-auto">
@@ -50,6 +109,7 @@
             </div>
         </div>
     </body>
+
     <script>
         $(document).ready( function () {
             $('.overlayPage').css("display","none");

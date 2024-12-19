@@ -122,9 +122,21 @@
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-load" role="tabpanel" aria-labelledby="pills-load-tab">
+                        {{-- <form method="post" enctype="multipart/form-data" class="dropzone dz-clickable h-100 text-center" id="dzLoadEvidence">
+                            <input type="hidden" id="inscription" name="inscription">
+                            <input type="hidden" id="type" name="type">
+                            <div>
+                                <h6 class="text-center font-weight-bold">Archivos subidos</h6>
+                            </div>
+                            <div class="dz-default dz-message">
+                                <span class="font-weight-bold font-italic">Suelta el archivo o realiza click para cargar archivos <span class="text-warning">(<5MB)</span></span>
+                            </div>
+                            @csrf
+                        </form> --}}
                         <form method="post" enctype="multipart/form-data" class="dropzone dz-clickable h-100 text-center" id="dzLoadEvidence">
                             <input type="hidden" id="inscription" name="inscription">
                             <input type="hidden" id="type" name="type">
+                            <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
                             <div>
                                 <h6 class="text-center font-weight-bold">Archivos subidos</h6>
                             </div>
@@ -697,7 +709,7 @@ function notify(resp)
     title: resp.message,
     });
 }
-function initDropzone()
+function initDropzone_borrar()
 {
     myDropzone = new Dropzone('#dzLoadEvidence', {
     url: "{{route('sendEvidence')}}",
@@ -735,6 +747,71 @@ function initDropzone()
     }
     });
 }
+function initDropzone() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const mobileCameraInput = $('#mobileCameraInput');
+
+    // Inicializar Dropzone
+    myDropzone = new Dropzone('#dzLoadEvidence', {
+        url: "{{route('sendEvidence')}}",
+        dictDefaultMessage: "Arrastra y suelta archivos aquí para subirlos",
+        acceptedFiles: '.jpg, .jpeg, .png',
+        maxFilesize: 50,
+        autoProcessQueue: false,
+        paramName: "files[]",
+        addRemoveLinks: true,
+        dictRemoveFile: "Remover",
+        dictInvalidFileType: "No puedes subir archivos de este tipo.",
+        init: function () {
+            const submitButton = document.querySelector('.saveEvidence');
+            myDropzone = this;
+
+            // Detectar clic en el área Dropzone
+            $('#dzLoadEvidence').on('click', function () {
+                if (isMobile) {
+                    // Si es un dispositivo móvil, abre la cámara
+                    mobileCameraInput.click();
+                }
+            });
+
+            // Procesar los archivos capturados por la cámara
+            mobileCameraInput.on('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    myDropzone.addFile(file); // Agregar el archivo al Dropzone
+                }
+            });
+
+            // Procesar la cola al hacer clic en "Guardar"
+            submitButton.addEventListener('click', function () {
+                if (myDropzone.getQueuedFiles().length > 0) {
+                    $('.overlayPage').css("display", "flex");
+                    myDropzone.processQueue();
+                } else {
+                    Swal.fire({
+                        title: "EVIDENCIAS",
+                        text: "Agregue imágenes para guardar",
+                        icon: "warning",
+                    });
+                }
+            });
+
+            // Eventos de Dropzone
+            this.on('addedfile', function (file) {
+                console.log('Archivo agregado:', file);
+            });
+
+            this.on('success', function (file, response) {
+                if (response.state === false) {
+                    this.removeFile(file); // Remover el archivo si hay un error
+                }
+                notify(response);
+                $('.overlayPage').css("display", "none");
+            });
+        },
+    });
+}
+
 function initDropzoneObs()
 {
     // console.log(myDropzoneObs.getQueuedFiles().length);
